@@ -6,6 +6,7 @@ PORT = 8000
 def main():
 	global running
 	running = True
+	global name 
 	name = raw_input("Name: ")
 	s = socket(AF_INET, SOCK_STREAM) 
 	s.connect((HOST, PORT)) 
@@ -27,6 +28,7 @@ def recive(s):
 	global running
 	while running:
 		data = s.recv(1024) 
-		print data
+		if (data.find(name + ":") != 0):
+			print data
 
 main()
