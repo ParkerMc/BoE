@@ -35,9 +35,8 @@ def main():
 def addConnections(conn, name, tid):
 	while True:
 		data = recieveData(conn)
+		print("loop")
 		if data == "quit":
-			global conns
-			global threads
 			for i, j in conns:
 				if i == tid: 
 					broadcastData(name+" left.")
