@@ -6,7 +6,7 @@ def recieveData(conn):
 	print conn, data, "\n"
 	return data;
 
-def broadcastData(conn, data):
+def broadcastData(data):
 	global conns
 	for i,j in conns:
 		j.sendall(data)
@@ -17,23 +17,33 @@ def main():
 	s.bind(('localhost', 8000))
 	s.listen(5) # number of connections listening for
 	print "Server is running...... \n"
+	global conns
+	global threads
 	threads = []
 	threadi = 0
-	global conns
 	conns = []
 	while True:
 		conn, addr = s.accept()
 		conns.append((threadi,conn))
-		print addr, " is now connected! \n"
-		threads.append(Thread(target = addConnections, args = (conn, threadi, )))
+		data = recieveData(conn)
+		broadcastData(data+"@"+addr[0]+ " is now connected! \n")
+		threads.append(Thread(target = addConnections, args = (conn, data, threadi, )))
 		threads[threadi].start()
 		threadi += 1;
 
 
-def addConnections(conn, id):
+def addConnections(conn, name, tid):
 	while True:
 		data = recieveData(conn)
-		broadcastData(conn,  data)
+		if data == "quit":
+			global conns
+			global threads
+			for i, j in conns:
+				if i == tid: 
+					broadcastData(name+" left.")
+					conns.pop(i)
+					j.close()
+		broadcastData(data)
 
 
 main()
