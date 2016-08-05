@@ -38,7 +38,7 @@ def main():
 			data = recieveData(conn) # Get user name
 			addToFile("") # Load chat history to array
 			global ftext # Get array with text
-			conn.write("".join(ftext)) # send to client
+			conn.sendall("".join(ftext)) # send to client
 			broadcastData(data+"@"+addr[0]+ " is now connected! \n") # Send connection msg to every one
 			conn.sendall(welcomeMsg) # Send welcome msg to new connection
 			threads.append(Thread(target = connectionHandler, args = (conn, data, threadi, ))) # Add threads
@@ -59,11 +59,13 @@ def broadcastData(data, name=None): # send data
 
 def removeConn(tid):# remove conn form array
 	global conns # get conns
+	k = 0
 	for i, j in conns: # loop though
 		if i == tid: # and find the right id
 			conns.pop(i) # remove
 			broadcastData(name+" left.") # left msg to all
 			j.close() # close connection
+		k += 1
 
 def connectionHandler(conn, name, tid): # Handle the connections
 	conRunning = True
