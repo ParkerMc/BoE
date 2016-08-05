@@ -18,18 +18,19 @@ def main():
 	    message = raw_input("") 
 	    if message == "quit":
 	    	s.send("quit")
-	    	rthread.kill()
 	        s.close() 
 	        running = False
 	        break; 
-
-	    s.send(name+": "+message)
+	    if message != "":
+	    	s.send(name+": "+message)
 
 def recive(s):
 	global running
 	while running:
-		data = s.recv(1024) 
-		if (data.find(name + ":") != 0):
-			print data
+		try:
+			data = s.recv(1024) 
+		except:
+			running = False
+		print data
 
 main()
