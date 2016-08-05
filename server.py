@@ -22,20 +22,22 @@ def main():
 	threads = []
 	threadi = 0
 	conns = []
-	while True:
-		conn, addr = s.accept()
-		conns.append((threadi,conn))
-		data = recieveData(conn)
-		broadcastData(data+"@"+addr[0]+ " is now connected! \n")
-		threads.append(Thread(target = addConnections, args = (conn, data, threadi, )))
-		threads[threadi].start()
-		threadi += 1;
+	try:
+		while True:
+			conn, addr = s.accept()
+			conns.append((threadi,conn))
+			data = recieveData(conn)
+			broadcastData(data+"@"+addr[0]+ " is now connected! \n")
+			threads.append(Thread(target = addConnections, args = (conn, data, threadi, )))
+			threads[threadi].start()
+			threadi += 1;
+	except KeyboardInterrupt:
+		print("killed")
 
 
 def addConnections(conn, name, tid):
 	while True:
 		data = recieveData(conn)
-		print("loop")
 		if data == "quit":
 			for i, j in conns:
 				if i == tid: 
@@ -43,6 +45,5 @@ def addConnections(conn, name, tid):
 					conns.pop(i)
 					j.close()
 		broadcastData(data)
-
 
 main()
