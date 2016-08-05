@@ -2,93 +2,109 @@ from socket import *
 from threading import Thread
 from os import path
 import datetime, ssl
-global running
-running = True
-global file
-file = False
-global ftext
-ftext = []
-def addToFile(text):
+
+def serverInt():
+	global running
 	global file
 	global ftext
-	if not file:
-		if path.isfile("chat/Main/"+str(datetime.date.today())): 
-			file = open("chat/Main/"+str(datetime.date.today()),"r")
-			ftext = file.readlines()
-			file.close()
-			file = open("chat/Main/"+str(datetime.date.today()),"w")
-			file.write("".join(ftext))
-
-		else:
-			ftext = []
-			file = open("chat/Main/"+str(datetime.date.today()),"w")
-	elif not path.isfile("chat/Main/"+str(datetime.date.today())):
-		file.close()
-		ftext = []
-		file = open("chat/Main/"+str(datetime.date.today()),"w")
-	if text != "":
-		ftext.append(text+"\n")
-		file.write(text+"\n")
-
-def recieveData(conn):
-	data = conn.recv(1024)	
-	print conn, data, "\n"
-	return data;
-
-def broadcastData(data, name=None):
 	global conns
-	for i,j in conns:
-		j.sendall(data)
+	global threads
+	global welcomeMsg
 
+	running = True
+	file = False
+	ftext = []
+	threads = [] # For all the threads
+	conns = [] # For all the connections
+
+	f = open("chat/Main/welcome.chat","r")
+	welcomeMsg = f.readline()
+	f.close()
 
 def main():
-	uws = socket(AF_INET, SOCK_STREAM)
-	uws.bind(('localhost', 8000))
-	uws.listen(5) # number of connections listening for
-	s = ssl.wrap_socket(uws, keyfile="ssl.pem", certfile="ssl.pem")#, ciphers="ADH-AES256-SHA")#ssl_version=ssl.PROTOCOL_TLSv1,
+	uwrapeds = socket(AF_INET, SOCK_STREAM) # Make socket
+	uwrapeds.bind(('localhost', 8000)) # Bind to ip and port
+	uwrapeds.listen(5) # number of connections listening for
+	s = ssl.wrap_socket(uwrapeds, keyfile="ssl.pem", certfile="ssl.pem") # Wrap with ssl
 	print "Server is running...... \n"
 	global conns
 	global threads
-	threads = []
-	threadi = 0
-	conns = []
+	global welcomeMsg
+	threadi = 0 # Index for threads
 	try:
 		while running:
-			conn, addr = s.accept()
-			conns.append((threadi,conn))
-			data = recieveData(conn)
-			addToFile("")
-			global ftext
-			print '\n'.join(ftext)
-			conn.write("".join(ftext))
-			broadcastData(data+"@"+addr[0]+ " is now connected! \n")
-			f = open("chat/Main/welcome.chat","r")
-			conn.sendall(f.readline())
-			f.close()
-			threads.append(Thread(target = addConnections, args = (conn, data, threadi, )))
-			threads[threadi].start()
-			threadi += 1;
+			conn, addr = s.accept() # Accept incomeing connection
+			conns.append((threadi,conn)) # Add to connections array
+			data = recieveData(conn) # Get user name
+			addToFile("") # Load chat history to array
+			global ftext # Get array with text
+			conn.write("".join(ftext)) # send to client
+			broadcastData(data+"@"+addr[0]+ " is now connected! \n") # Send connection msg to every one
+			conn.sendall(welcomeMsg) # Send welcome msg to new connection
+			threads.append(Thread(target = connectionHandler, args = (conn, data, threadi, ))) # Add threads
+			threads[threadi].start() # Start thread
+			threadi += 1; # add one to thread index
 	except KeyboardInterrupt:
 		print "killed"
 
-def addConnections(conn, name, tid):
-	while running:
+def recieveData(conn): # Recive Data form client
+	data = conn.recv(1024)	# Get the data
+	print  data, "\n" # Print it to server
+	return data; # return data
+
+def broadcastData(data, name=None): # send data
+	global conns # Get all connections
+	for i,j in conns: # loop through
+		j.sendall(data) # and send data
+
+def removeConn(tid):# remove conn form array
+	global conns # get conns
+	for i, j in conns: # loop though
+		if i == tid: # and find the right id
+			conns.pop(i) # remove
+			broadcastData(name+" left.") # left msg to all
+			j.close() # close connection
+
+def connectionHandler(conn, name, tid): # Handle the connections
+	conRunning = True
+	while running and conRunning: # keep looping till end or lose connection
 		try:
-			data = recieveData(conn)
-			if data == "quit":
-				for i, j in conns:
-					if i == tid: 
-						conns.pop(i)
-						broadcastData(name+" left.")
-						j.close()
-			else:
-				addToFile(data)
-				broadcastData(data)
-		except Exception, e:
-			raise e
-			for i, j in conns:
-				if i == tid: 
-					broadcastData(name+" left.")
-					conns.pop(i)
-					j.close()
+			data = recieveData(conn)# get data
+			if data == "quit": # if quit
+				removeConn(tid) # remove connection
+				conRunning = False #end loop
+			else:					#else
+				addToFile(data) # save to file
+				broadcastData(data) # send to everyone
+		except Exception, e: # if error
+			removeConn(tid) # remove connection
+			conRunning = False #end loop
+
+
+def addToFile(text): # To load and add text to the file
+					 # For ONLY loading the file use ""
+	global file # For the file obj
+	global ftext # For the file text
+	if not file: # If file is not loaded
+		if path.isfile("chat/Main/"+str(datetime.date.today())+".chat"): # If it exists add the text to array 
+			file = open("chat/Main/"+str(datetime.date.today())+".chat","r") # Open file
+			ftext = file.readlines() # Read lines to array
+			file.close() # Close the file
+			file = open("chat/Main/"+str(datetime.date.today())+".chat","w") # Opens that file in write mode
+			file.write("".join(ftext)) # Write the same lines to the file or else they will get overiden
+
+		else: # If file dose not exist and no file is loaded make it
+			ftext = [] # Reset array
+			file = open("chat/Main/"+str(datetime.date.today())+".chat","w") # open file
+	
+	elif not path.isfile("chat/Main/"+str(datetime.date.today())+".chat"): # If file dose not exist make it 
+		file.close() # Close old file
+		ftext = [] # Reset Array
+		file = open("chat/Main/"+str(datetime.date.today())+".chat","w") # Open file
+	
+	if text != "": # Add text to array and file
+		ftext.append(text+"\n") # Add text to string
+		file.write(text+"\n") # Add text to file
+
+serverInt()
 main()
