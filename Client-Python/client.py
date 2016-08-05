@@ -18,6 +18,7 @@ def main():
 	    message = raw_input("") 
 	    if message == "quit":
 	    	s.send("quit")
+	    	rthread.kill()
 	        s.close() 
 	        running = False
 	        break; 
