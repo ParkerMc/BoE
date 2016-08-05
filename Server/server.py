@@ -1,7 +1,7 @@
 from socket import *
 from threading import Thread
 from os import path
-import datetime
+import datetime, ssl
 global running
 running = True
 global file
@@ -42,9 +42,10 @@ def broadcastData(data, name=None):
 
 
 def main():
-	s = socket(AF_INET, SOCK_STREAM)
-	s.bind(('localhost', 8000))
-	s.listen(5) # number of connections listening for
+	uws = socket(AF_INET, SOCK_STREAM)
+	uws.bind(('localhost', 8000))
+	uws.listen(5) # number of connections listening for
+	s = ssl.wrap_socket(uws, keyfile="ssl.pem", certfile="ssl.pem")#, ciphers="ADH-AES256-SHA")#ssl_version=ssl.PROTOCOL_TLSv1,
 	print "Server is running...... \n"
 	global conns
 	global threads
@@ -59,7 +60,7 @@ def main():
 			addToFile("")
 			global ftext
 			print '\n'.join(ftext)
-			conn.sendall("".join(ftext))
+			conn.write("".join(ftext))
 			broadcastData(data+"@"+addr[0]+ " is now connected! \n")
 			f = open("chat/Main/welcome.chat","r")
 			conn.sendall(f.readline())
@@ -84,6 +85,7 @@ def addConnections(conn, name, tid):
 				addToFile(data)
 				broadcastData(data)
 		except Exception, e:
+			raise e
 			for i, j in conns:
 				if i == tid: 
 					broadcastData(name+" left.")

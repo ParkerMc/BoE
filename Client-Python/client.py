@@ -1,4 +1,5 @@
 from socket import *
+import socket
 from threading import Thread
  
 HOST = raw_input("Server: ")
@@ -8,28 +9,30 @@ def main():
 	running = True
 	global name 
 	name = raw_input("Name: ")
-	s = socket(AF_INET, SOCK_STREAM) 
-	s.connect((HOST, PORT)) 
-	s.send(name)
+	uws = socket.socket(AF_INET, SOCK_STREAM) 
+	uws.connect((HOST, PORT)) 
+	s = socket.ssl(uws)
+	s.write(name)
 	print "Connected"
 	rthread = Thread(target = recive, args = (s, ))
 	rthread.start()
 	while True:
 	    message = raw_input("") 
 	    if message == "quit":
-	    	s.send("quit")
+	    	s.write("quit")
 	        s.close() 
 	        running = False
 	        break; 
 	    if message != "":
-	    	s.send(name+": "+message)
+	    	s.write(name+": "+message)
 
 def recive(s):
 	global running
 	while running:
 		try:
-			data = s.recv(1024) 
-		except:
+			data = s.read(1024) 
+		except Exception, e:
+			raise e
 			running = False
 		print data
 
