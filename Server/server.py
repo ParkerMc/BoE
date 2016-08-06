@@ -63,7 +63,7 @@ def removeConn(tid,name):# remove conn form array
 	k = 0
 	for i, j in conns: # loop though
 		if i == tid: # and find the right id
-			conns.pop(i) # remove
+			conns.pop(k) # remove
 			broadcastData(name+" left.") # left msg to all
 			j.close() # close connection
 		k += 1
