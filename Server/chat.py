@@ -61,10 +61,8 @@ def recieveData(conn): # Recive Data form client
 
 def broadcastData(data, name=None): # send data
 	global conns # Get all connections
-	for j in conns: # loop through
-		try:
-			j.sendall(data) # and send data
-		except: None
+	for j in conns.items(): # loop through
+		j[1].sendall(data) # and send data
 
 def removeConn(name):# remove conn form array
 	global conns # get conns
