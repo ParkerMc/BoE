@@ -1,3 +1,4 @@
 import chat
-chat.serverInt()
-chat.main()
+if __name__ == "__main__":
+    chat.serverInt()
+    chat.main()

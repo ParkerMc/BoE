@@ -1,2 +1,3 @@
 import chat
-chat.main()
+if __name__ == "__main__":
+    chat.main()
