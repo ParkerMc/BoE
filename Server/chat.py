@@ -43,24 +43,27 @@ def main():
 	try:
 		while running:
 			conn, addr = s.accept() # Accept incomeing connection
-			name = recieveData(conn) # Get username
-			if name not in usersOn:
-				usersOn.append(name)
-				conns[name] = conn # Add to connections array
-				threads[name] = Thread(target = connectionHandler, args = (conn, addr, name, )) # Add threads
-				threads[name].start() # Start thread
-			else:
-				conn.sendall("The user "+name+" is all ready connected")
+			pType, name = recieveData(conn) # Get username
+			if pType=="\x00":
+				if name not in usersOn:
+					usersOn.append(name)
+					threads[name] = Thread(target = connectionHandler, args = (conn, addr, name, )) # Add threads
+					threads[name].start() # Start thread
+				else:
+					conn.sendall("\x05""The user "+name+" is all ready connected")
 	except KeyboardInterrupt:
 		print "killed"
 
 def recieveData(conn): # Recive Data form client
 	data = conn.recv(1024)	# Get the data
-	print  data, "\n" # Print it to server
-	return data; # return data
+	try:
+		return data[:1], data[1:]; # return data
+	except:
+		return None;
 
 def broadcastData(data, name=None): # send data
 	global conns # Get all connections
+	print data + "\n"
 	for j in conns.items(): # loop through
 		j[1].sendall(data) # and send data
 
@@ -68,10 +71,15 @@ def removeConn(name):# remove conn form array
 	global conns # get conns
 	global usersOn#get users
 	usersOn.remove(name) #remove name
-	broadcastData(name+" left.") # left msg to all
+	broadcastData("\x05"+name+" left.") # left msg to all
 	conns[name].close() # close connection
 	conns.pop(name) # remove
 
+def checkPasswd(conn, hash):
+	conn.sendall("\x01") # send for the password
+	pType, data = recieveData(conn)# Get password
+	if pType == "\x01" and sha256_crypt.verify(data, hash): return True
+	else: return False
 
 
 def connectionHandler(conn, addr, username): # Handle the connections
@@ -82,20 +90,17 @@ def connectionHandler(conn, addr, username): # Handle the connections
 	for i, j, k, l in users: # loop though users
 		if i == username: # if it is the user name
 			found = True # set found
-			conn.sendall("pass") # send for the password
-			passwd = conn.recv(1024) # Get password
-			if not sha256_crypt.verify(passwd, j): # check password
-				conn.sendall("pass") # send for the password
-				passwd = conn.recv(1024) # Get password
-				if not sha256_crypt.verify(passwd, j): # check password
-					conn.sendall("pass") # send for the password
-					passwd = conn.recv(1024) # Get password
-					if not sha256_crypt.verify(passwd, j): conRunning = False # check password if rond stop
+			if not checkPasswd(conn, j): # check password
+				if not checkPasswd(conn, j): # check password
+					if not checkPasswd(conn, j):
+						conRunning = False # check password if rond stop
+						conn.sendall("\x01"+"incorect")
 
 	if not found:
-		conn.sendall("make")
-		if recieveData(conn) == "y":
-			conn.sendall("pass") # send for the password
+		conn.sendall("\x03")
+		pType, data = recieveData(conn)
+		if data == "y" and pType == "\x03":
+			conn.sendall("\x01") # send for the password
 			passwd = conn.recv(1024) # Get password
 			passh = sha256_crypt.encrypt(passwd)
 			makeUser(username,passh,0,"none")
@@ -103,22 +108,26 @@ def connectionHandler(conn, addr, username): # Handle the connections
 			conRunning = False
 	if conRunning:
 		global ftext # Get array with text
-		conn.sendall("".join(ftext)) # send to client
-		broadcastData(username+"@"+addr[0]+ " is now connected! \n") # Send connection msg to every one
-		conn.sendall(welcomeMsg) # Send welcome msg to new connection
+		conn.sendall("\x04"+("".join(ftext))) # send to client
+		conns[username] = conn # Add to connections array
+		broadcastData("\x05"+username+"@"+addr[0]+ " is now connected! \n") # Send connection msg to every one
+		conn.sendall("\x05"+welcomeMsg) # Send welcome msg to new connection
+	else:
+		usersOn.remove(username)
 	while running and conRunning: # keep looping till end or lose connection
 		try:
-			data = recieveData(conn)# get data
-			if not data:
-				removeConn(username) # remove connection
-				conRunning = False #end loop
-				break
-			elif data == "quit": # if quit
-				removeConn(username) # remove connection
-				conRunning = False #end loop
-			else:					#else
-				addToFile(data) # save to file
-				broadcastData(data) # send to everyone
+			pType, data = recieveData(conn)# get data
+			if pType == "\x05":
+				if not data:
+					removeConn(username) # remove connection
+					conRunning = False #end loop
+					break
+				elif data == "quit": # if quit
+					removeConn(username) # remove connection
+					conRunning = False #end loop
+				else:					#else
+					addToFile(data) # save to file
+					broadcastData("\x05"+data) # send to everyone
 		except Exception, e: # if error
 			removeConn(username) # remove connection
 			conRunning = False #end loop
@@ -129,7 +138,7 @@ def addToFile(text): # To load and add text to the file
 	global file # For the file obj
 	global ftext # For the file text
 	if not file: # If file is not loaded
-		if path.isfile("chat/Main/"+str(datetime.date.today())+".chat"): # If it exists add the text to array 
+		if path.isfile("chat/Main/"+str(datetime.date.today())+".chat"): # If it exists add the text to array
 			file = open("chat/Main/"+str(datetime.date.today())+".chat","r") # Open file
 			ftext = file.readlines() # Read lines to array
 			file.close() # Close the file
@@ -139,12 +148,12 @@ def addToFile(text): # To load and add text to the file
 		else: # If file dose not exist and no file is loaded make it
 			ftext = [] # Reset array
 			file = open("chat/Main/"+str(datetime.date.today())+".chat","w") # open file
-	
-	elif not path.isfile("chat/Main/"+str(datetime.date.today())+".chat"): # If file dose not exist make it 
+
+	elif not path.isfile("chat/Main/"+str(datetime.date.today())+".chat"): # If file dose not exist make it
 		file.close() # Close old file
 		ftext = [] # Reset Array
 		file = open("chat/Main/"+str(datetime.date.today())+".chat","w") # Open file
-	
+
 	if text != "": # Add text to array and file
 		ftext.append(text+"\n") # Add text to string
 		file.write(text+"\n") # Add text to file
@@ -166,4 +175,3 @@ def makeUser(username, passwd ,level,icon): # make user
 	f = open("users.csv","w")
 	for i, j, k, l in users: f.write(i+","+j+","+str(k)+","+l+"\n")
 	f.close()
-
