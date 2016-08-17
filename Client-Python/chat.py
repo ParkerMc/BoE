@@ -9,8 +9,10 @@ def recv(s):
 		return data[:1], data[1:]; # return data
 	except:
 		return None;
-
 def main():
+	print "Run with -t for terminal ver"
+	
+def bash():
 	if settings.host == "":	host = raw_input("Server: ")
 	else: host = settings.host
 	if settings.port == "":	port = raw_input("Port: ")
