@@ -6,7 +6,7 @@ python:
   #- pip install setuptools
   #- pip install pyaudio
 script:
-  - python Client-Python/client.py
-  - python Server/server.py
+  - python Client-Python/Test.py
+  - python Server/Test.py
 after_success:
 - nosetests
