@@ -2,9 +2,9 @@ language: python
 sudo: required
 python:
   - "2.7"
-install:
-  - pip install setuptools
-  - pip install pyaudio
+#install:
+  #- pip install setuptools
+  #- pip install pyaudio
 script:
   - nosetests --exe --with-coverage
 after_success:
