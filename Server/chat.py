@@ -91,23 +91,22 @@ def connectionHandler(conn, addr, username): # Handle the connections
 		if i == username: # if it is the user name
 			found = True # set found
 			if not checkPasswd(conn, j): # check password
-				if not checkPasswd(conn, j): # check password
-					if not checkPasswd(conn, j):
-						conRunning = False # check password if rond stop
-						conn.sendall("\x01"+"incorect")
+				conRunning = False # check password if rond stop
+				conn.sendall("\x01"+"incorect")
 
 	if not found:
 		conn.sendall("\x03")
 		pType, data = recieveData(conn)
 		if data == "y" and pType == "\x03":
 			conn.sendall("\x01") # send for the password
-			passwd = conn.recv(1024) # Get password
-			passh = sha256_crypt.encrypt(passwd)
+			pType, data = recieveData(conn) # Get password
+			passh = sha256_crypt.encrypt(data)
 			makeUser(username,passh,0,"none")
 		else:
 			conRunning = False
 	if conRunning:
 		global ftext # Get array with text
+		conn.sendall("\x03"+"correct")
 		conn.sendall("\x04"+("".join(ftext))) # send to client
 		conns[username] = conn # Add to connections array
 		broadcastData("\x05"+username+"@"+addr[0]+ " is now connected! \n") # Send connection msg to every one
