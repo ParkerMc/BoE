@@ -2,8 +2,18 @@ language: python
 sudo: required
 python:
   - "2.7"
-install:
-  sudo apt-get -y install python-qt4
+before_install:
+  - wget http://www.riverbankcomputing.com/static/Downloads/sip4/sip-4.13.3.tar.gz
+  - tar zxvf sip-4.13.3.tar.gz
+  - cd sip-4.13.3/
+  - python configure.py
+  - make
+  - sudo make install
+  - cd ..
+  - python -c 'import sip'
+  - sudo apt-get install libqt4-dev python-qt4 pyqt4-dev-tools qt4-designer
+  - python -c 'import PyQt4'
+- python -c 'import PyQt4.QtCore'
 script:
   - python Client-Python/Test.py
   - python Server/Test.py
