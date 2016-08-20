@@ -2,24 +2,22 @@ language: python
 sudo: required
 python:
   - "2.7"
-#before_install:
-#  - wget https://sourceforge.net/projects/pyqt/files/sip/sip-4.18.1/sip-4.18.1.tar.gz
-# - tar zxvf sip-4.18.1.tar.gz
-#  - cd sip-4.18.1/
-#  - python configure.py
-#  - make
-#  - sudo make install
-#  - cd ..
-# - python -c 'import sip'
-#  - wget http://sourceforge.net/projects/pyqt/files/PyQt4/PyQt-4.11.4/PyQt-x11-gpl-4.11.4.tar.gz
-#  - tar zxvf PyQt-x11-gpl-4.11.4.tar.gz
-#  - cd PyQt-x11-gpl-4.11.4/
-#  - echo 'yes' | python configure.py
-#  - make
-#  - sudo make install
-#  - cd ..
-#  - python -c 'import PyQt4'
-#  - python -c 'import PyQt4.QtCore'
+before_install:
+  - cd ..
+  - curl -L -O http://sourceforge.net/projects/pyqt/files/sip/sip-4.14.1/sip-4.14.1.tar.gz
+  - tar -xvf sip-4.14.1.tar.gz
+  - cd sip-4.14.1
+  - python configure.py
+  - make -j 2
+  - sudo make install
+  - cd ..
+  - curl -L -O http://sourceforge.net/projects/pyqt/files/PyQt4/PyQt-4.9.5/PyQt-x11-gpl-4.9.5.tar.gz
+  - tar -xvf PyQt-x11-gpl-4.9.5.tar.gz
+  - cd PyQt-x11-gpl-4.9.5
+  - python configure.py --confirm-license
+  - make -j 2
+  - sudo make install
+  - cd ../BOE
 script:
   - python Client-Python/Test.py
   - python Server/Test.py
