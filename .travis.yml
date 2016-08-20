@@ -11,7 +11,13 @@ before_install:
   - sudo make install
   - cd ..
   - python -c 'import sip'
-  - sudo apt-get install libqt4-dev python-qt4 pyqt4-dev-tools qt4-designer
+  - wget http://sourceforge.net/projects/pyqt/files/PyQt4/PyQt-4.11.4/PyQt-x11-gpl-4.11.4.tar.gz
+  - tar zxvf PyQt-x11-gpl-4.11.4.tar.gz
+  - cd PyQt-x11-gpl-4.11.4/
+  - echo 'yes' | python configure.py
+  - make
+  - sudo make install
+  - cd ..
   - python -c 'import PyQt4'
   - python -c 'import PyQt4.QtCore'
 script:
