@@ -19,7 +19,10 @@ before_install:
   - sudo make install
   - cd ../BOE
 script:
-  - python Client-Python/Test.py
-  - python Server/Test.py
+  - cd Client-Python
+  - python Test.py
+  - cd ../Server
+  - python Test.py
+  - cd ..
 after_success:
 - nosetests
