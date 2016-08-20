@@ -13,7 +13,7 @@ before_install:
   - python -c 'import sip'
   - sudo apt-get install libqt4-dev python-qt4 pyqt4-dev-tools qt4-designer
   - python -c 'import PyQt4'
-- python -c 'import PyQt4.QtCore'
+  - python -c 'import PyQt4.QtCore'
 script:
   - python Client-Python/Test.py
   - python Server/Test.py
