@@ -1,6 +1,6 @@
-[![Build Status](https://travis-ci.org/ParkerMc/BOE.svg?branch=master)](https://travis-ci.org/ParkerMc/BOE)
-
 # BoE /bō/
+
+[![Build Status](https://travis-ci.org/ParkerMc/BOE.svg?branch=master)](https://travis-ci.org/ParkerMc/BOE)
 
 A chat platform that intends to look at other chat programs and take only the "Best of Everything".
 
