@@ -8,9 +8,9 @@ from re import sub
 global chatText_queue
 global chatText_queue_lock
 
-main_class = uic.loadUiType("C:/Users/Nick/git/BOE.git/Client-Python/qtgui.ui")[0]
-login_class = uic.loadUiType("C:/Users/Nick/git/BOE.git/Client-Python/login.ui")[0]
-createuser_class = uic.loadUiType("C:/Users/Nick/git/BOE.git/Client-Python/createuser.ui")[0]
+main_class = uic.loadUiType("qtgui.ui")[0]
+login_class = uic.loadUiType("login.ui")[0]
+createuser_class = uic.loadUiType("createuser.ui")[0]
 
 chatText_queue = []
 chatText_queue_lock = RLock()
