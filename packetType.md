@@ -12,4 +12,7 @@
 
 05 = Text
 
-06 = Voice
+06 = Logout
+
+07 = Voice
+

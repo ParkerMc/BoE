@@ -8,9 +8,9 @@ from re import sub
 global chatText_queue
 global chatText_queue_lock
 
-main_class = uic.loadUiType("qtgui.ui")[0]
-login_class = uic.loadUiType("login.ui")[0]
-createuser_class = uic.loadUiType("createuser.ui")[0]
+main_class = uic.loadUiType("ui/qtgui.ui")[0]
+login_class = uic.loadUiType("ui/login.ui")[0]
+createuser_class = uic.loadUiType("ui/createuser.ui")[0]
 
 chatText_queue = []
 chatText_queue_lock = RLock()
@@ -32,9 +32,6 @@ class Main(QtGui.QMainWindow, main_class):
         for i in chatText_queue:
             chatText_queue.remove(i)
             self.chatBox.append(str(i))
-            f = open("test.txt", "w")
-            f.write(str(i))
-            f.close()
         chatText_queue_lock.release()
 
 
@@ -45,7 +42,7 @@ class Main(QtGui.QMainWindow, main_class):
             uws.close()
             running = False
         elif self.text.text() != "":
-            s.write("\x05"+username+": "+text)
+            s.write("\x05"+text)
     def closeEvent(self, event):
         s.write("\x05quit")
         uws.close()
@@ -55,22 +52,17 @@ class Main(QtGui.QMainWindow, main_class):
 
 class login(QtGui.QDialog, login_class):
     def __init__(self, parent=None):
-        uws = socket(AF_INET, SOCK_STREAM)
-    	uws.connect((settings.host, settings.port))
-    	s = sslc(uws)
-        uws.close()
-        QtGui.QDialog.__init__(self, parent)
-        self.setupUi(self)
-        self.Login.clicked.connect(self.login)
-        self.user.returnPressed.connect(self.login)
-        self.passwd.returnPressed.connect(self.login)
-
-    def login(self):
         global uws
         uws = socket(AF_INET, SOCK_STREAM)
     	uws.connect((settings.host, settings.port))
         global s
     	s = sslc(uws)
+        QtGui.QDialog.__init__(self, parent)
+        self.setupUi(self)
+        self.Login.clicked.connect(self.login)
+
+    def login(self):
+        s.write("\x06")
         user = sub('\W+', ' ', str(self.user.text()))
         passwd = sub('\W+', ' ', str(self.passwd.text()))
         s.write("\x00"+user)

@@ -1,4 +1,2 @@
-import chat
-if __name__ == "__main__":
-    chat.serverInt()
-    chat.main()
+import BaceTCP
+if __name__ == "__main__": BaceTCP.start()
