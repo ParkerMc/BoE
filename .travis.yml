@@ -14,11 +14,9 @@ before_install:
   - curl -L -O http://sourceforge.net/projects/pyqt/files/PyQt4/PyQt-4.9.5/PyQt-x11-gpl-4.9.5.tar.gz
   - tar -xvf PyQt-x11-gpl-4.9.5.tar.gz
   - cd PyQt-x11-gpl-4.9.5
-  - {
-  - python configure.py --confirm-license
-  - make -j 2
-  - sudo make install
-  - } &> /dev/null
+  - python configure.py --confirm-license &> /dev/null
+  - make -j 2 &> /dev/null
+  - sudo make install &> /dev/null
   - cd ../BOE
 script:
   - cd Client-Python
