@@ -58,14 +58,14 @@ class TCPSocket(object):
 			Send data to the client.
 		"""
 		self.conn.sendall(data)
-		
+
 
 class TCPServer(object):
-	def __init__(self, host, port, websocketclass):
+	def __init__(self, host, port, socketclass):
 		print "loading mods(if any)"
 		self.mods = modloader()
 		self.running = True
-		self.websocketclass = websocketclass
+		self.socketclass = socketclass
 		self.serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.serversocket.bind((host, port))
 		self.serversocket.listen(5)
@@ -83,7 +83,7 @@ class TCPServer(object):
 	def listener(self):
 		while self.running:
 			conn, addr = self.serversocket.accept()
-			targetClass = self.websocketclass(self,conn,addr)
+			targetClass = self.socketclass(self,conn,addr)
 			self.connections.append((targetClass, conn))
 			self.threads[addr] = Thread(target = targetClass.handle(), args = ( ), name=str(addr)) # Add threads
 			self.threads[addr].start() # Start thread
@@ -97,18 +97,18 @@ class TCPServer(object):
 				self.running = False
 				self.close()
 				break
-			
+
 
 
 class SSLTCPServer(TCPServer):
 
-	def __init__(self, host, port, websocketclass, sslfile):
+	def __init__(self, host, port, socketclass, sslfile):
 		print "loading mods(if any)"
 		self.mods = modloader.modloader()
 		import inspect
 		print inspect.getmembers(self.mods, predicate=inspect.isfunction)
 		self.running = True
-		self.websocketclass = websocketclass
+		self.socketclass = socketclass
 		self.uwserversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.uwserversocket.bind((host, port))
 		self.uwserversocket.listen(5)
