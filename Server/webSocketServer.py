@@ -216,8 +216,8 @@ class WebSocket(object):
                       self.data = self.data.decode('utf8', errors='strict')
                   except Exception as exp:
                       raise Exception('invalid utf-8 payload')
-              self.pId = data[:1]
-              self.data = data[1:]
+              self.pId = self.data[:1]
+              self.data = self.data[1:]
               self.handleMessage()
 
 
