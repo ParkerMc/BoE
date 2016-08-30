@@ -70,7 +70,7 @@ class User():
 class Chat(WebSocket):
 
 	def handleMessage(self):
-		print self.data
+		self.mods.message(self, self.server)
 		if self.data == "quit":
 			self.close()
 		elif self.loggedin and self.pId == "\x05":
@@ -120,7 +120,7 @@ class Chat(WebSocket):
 				client.send("\x05"+self.username +"@"+self.address[0] + ' - disconnected')
 				clients.remove(self)
 
-#		else: self.newid(self, self.server)
+		else: self.mods.newid(self, self.server)
 
 	def handleConnected(self):
 		self.hash = ""
@@ -130,6 +130,7 @@ class Chat(WebSocket):
 		print self.address, 'connected'
 
 	def handleClose(self):
+		self.mods.Cclose(self, self.server)
 		try: clients.remove(self)
 		except: None
 		print self.address, 'closed'
