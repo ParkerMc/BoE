@@ -1,7 +1,7 @@
 import datetime, settings
 
 from os import path
-from TCPServer import *
+from webSocketServer import SSLWebSocketServer, WebSocket
 from passlib.hash import sha256_crypt
 
 
@@ -67,9 +67,10 @@ class User():
 		for i, j, k, l in users: f.write(i+","+j+","+str(k)+","+l+"\n") #sve to file
 		f.close()# close the file
 
-class Chat(TCPSocket):
-	
+class Chat(WebSocket):
+
 	def handleMessage(self):
+		self.mods.message(self, self.server)
 		if self.data == "quit":
 			self.close()
 		elif self.loggedin and self.pId == "\x05":
@@ -87,7 +88,7 @@ class Chat(TCPSocket):
 			if not found:
 				self.username = self.data
 				self.send("\x03")
-		elif self.pId == "\x01" and not self.makeingUser: 
+		elif self.pId == "\x01" and not self.makeingUser:
 			right = sha256_crypt.verify(self.data, self.hash)
 			if right:
 				self.send("\x03"+"correct")
@@ -100,7 +101,7 @@ class Chat(TCPSocket):
 			else: self.send("\x01"+"incorect")
 		elif self.pId == "\x01" and self.makeingUser:
 			passh = sha256_crypt.encrypt(self.data)
-			User.makeUser(self.username,passh,0,"none") 
+			User.makeUser(self.username,passh,0,"none")
 			self.send("\x04"+("".join(ftext)))
 			clients.append(self)
 			for client in clients:
@@ -118,8 +119,8 @@ class Chat(TCPSocket):
 				self.loggedin = False
 				client.send("\x05"+self.username +"@"+self.address[0] + ' - disconnected')
 				clients.remove(self)
-				
-		else: self.newid(self, self.server)
+
+		else: self.mods.newid(self, self.server)
 
 	def handleConnected(self):
 		self.hash = ""
@@ -129,10 +130,11 @@ class Chat(TCPSocket):
 		print self.address, 'connected'
 
 	def handleClose(self):
+		self.mods.Cclose(self, self.server)
 		try: clients.remove(self)
 		except: None
+		print self.address, 'closed'
 		if self.loggedin:
-			print self.address, 'closed'
 			for client in clients:
 				client.send("\x05"+self.username + ' - disconnected')
 
@@ -141,6 +143,6 @@ def start():
 	User.loadusers()
 	print "loading history..."
 	History.load()
-	server = SSLTCPServer(settings.host, settings.port, Chat,"ssl.pem")
+	server = SSLWebSocketServer(settings.host, settings.port, Chat,"ssl.pem","ssl.pem")
 	print "starting server..."
 	server.serveforever()
