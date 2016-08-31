@@ -117,7 +117,8 @@ class Chat(WebSocket):
 			if self.loggedin:
 				self.username = ""
 				self.loggedin = False
-				client.send("\x05"+self.username +"@"+self.address[0] + ' - disconnected')
+				for client in clients:
+					client.send("\x05"+self.username +"@"+self.address[0] + ' - disconnected')
 				clients.remove(self)
 
 		else: self.mods.newid(self, self.server)
@@ -137,6 +138,7 @@ class Chat(WebSocket):
 		if self.loggedin:
 			for client in clients:
 				client.send("\x05"+self.username + ' - disconnected')
+
 
 def start():
 	print "loading users..."
