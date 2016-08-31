@@ -1,4 +1,5 @@
 from PyQt4 import QtGui, uic
+from os import path
 
 main_class = uic.loadUiType("ui/main.ui")[0]
 serverList_class = uic.loadUiType("ui/serverList.ui")[0]
@@ -9,6 +10,15 @@ class Main(QtGui.QMainWindow, main_class):
 	def __init__(self, parent=None):
 		QtGui.QMainWindow.__init__(self, parent)  # Run gui init
 		self.setupUi(self)  # Setup Ui
+		self.servers = {}  # Array for servers
+		if path.isfile("servers.csv"):  # If server file exists
+			f = open("servers.csv", "r")  # Open file for reading
+			data = f.readlines()  # Read file
+			f.close()  # Close file
+			for i in data:  # Loop though line
+				j = i.split(",")  # Split at the ,'s
+
+				self.servers[j[0]] = (j[1], j[2], j[3])  # Add to array
 		self.serverList = ServerList(self)  # Load server list
 		self.serverList.show()  # Show server list
 
@@ -48,12 +58,20 @@ class ServerList(QtGui.QDialog, serverList_class):
 		self.buttonBox.addButton(self.connectButton, QtGui.QDialogButtonBox.AcceptRole)
 		# Connect buttons
 		self.addButton.clicked.connect(self.add)
+		# Load servers from array
+		for i, j in self.parent().servers.items():
+			self.servers.addTopLevelItems([QtGui.QTreeWidgetItem((i, "", ""))])
 
 	def add(self):
 		self.addServer = AddServer("", "", "", "", self)  # Load GUI
 		self.addServer.exec_()  # Run GUI
-		if self.addServer.saved:
-			self.servers.addTopLevelItems([QtGui.QTreeWidgetItem((self.addServer.data[0],"",""))])
+		if self.addServer.saved:  # If save
+			self.servers.addTopLevelItems([QtGui.QTreeWidgetItem((self.addServer.data[0], "", ""))])  # Add to list
+			self.parent().servers[self.addServer.data[0]] = (self.addServer.data[1], self.addServer.data[2], self.addServer.data[3])  # Add to array
+			f = open("servers.csv", "w")  # Open file for writing
+			for i, j in self.parent().servers.items():  # Loop though array
+				f.write(str(i) + "," + str(j[0]) + "," + str(j[1]) + "," + str(j[2]) + "\n")  # Save to file
+			f.close()  # Close file
 
 
 class AddServer(QtGui.QDialog, addServer_class):
