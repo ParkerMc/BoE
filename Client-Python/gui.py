@@ -1,37 +1,36 @@
-import sys
 from PyQt4 import QtGui, uic
 
 main_class = uic.loadUiType("ui/main.ui")[0]
-server_list_class = uic.loadUiType("ui/serverList.ui")[0]
-add_server_class = uic.loadUiType("ui/addServer.ui")[0]
+serverList_class = uic.loadUiType("ui/serverList.ui")[0]
+addServer_class = uic.loadUiType("ui/addServer.ui")[0]
 
 
 class Main(QtGui.QMainWindow, main_class):
-
-    def __init__(self, parent=None):
+	def __init__(self, parent=None):
 		QtGui.QMainWindow.__init__(self, parent)  # Run gui init
 		self.setupUi(self)  # Setup Ui
-		self.server_list = server_list(self)  # Load server list
-		self.server_list.show()  # Show server list
+		self.serverList = ServerList(self)  # Load server list
+		self.serverList.show()  # Show server list
 
-    def chatUpdate(self):
-        pass
+	def chatUpdate(self):
+		pass
 
-    def send(self):
-        pass
+	def send(self):
+		pass
 
-    def closeEvent(self, event):
-        pass
+	def closeEvent(self, event):
+		pass
 
-    def connectToServer(self):
-        pass
+	def connectToServer(self):
+		pass
 
 
-class server_list(QtGui.QDialog, server_list_class):
-
+class ServerList(QtGui.QDialog, serverList_class):
 	def __init__(self, parent=None):
 		QtGui.QDialog.__init__(self, parent)  # Run gui init
 		self.setupUi(self)  # Setup Ui
+		# Defining variables
+		self.addServer = None
 		# Create buttons
 		self.addButton = QtGui.QPushButton()
 		self.editButton = QtGui.QPushButton()
@@ -51,12 +50,29 @@ class server_list(QtGui.QDialog, server_list_class):
 		self.addButton.clicked.connect(self.add)
 
 	def add(self):
-		self.add_server = add_server(self)  # Load GUI
-		self.add_server.exec_()  # Run GUI
+		self.addServer = AddServer("", "", "", "", self)  # Load GUI
+		self.addServer.exec_()  # Run GUI
+		if self.addServer.saved:
+			self.servers.addTopLevelItems([QtGui.QTreeWidgetItem((self.addServer.data[0],"",""))])
 
 
-class add_server(QtGui.QDialog, add_server_class):
-
-	def __init__(self, parent=None):
+class AddServer(QtGui.QDialog, addServer_class):
+	def __init__(self, server_name, address, port, username, parent=None):
 		QtGui.QDialog.__init__(self, parent)  # Run gui init
 		self.setupUi(self)  # Setup Ui
+		# Defining variables
+		self.data = None
+		self.saved = False  # If user clicks ok
+		# Set fields
+		self.name.setText(server_name)
+		self.ip.setText(address)
+		self.port.setText(port)
+		self.username.setText(username)
+		self.buttonBox.accepted.connect(self.save)  # Connect button to return data
+
+	def save(self):
+		self.saved = True  # Save data on return
+		# noinspection PyPep8
+		self.data = (str(self.name.text()), str(self.ip.text()), str(self.port.text()),
+					str(self.username.text()))  # Get data for saving
+		self.close()
