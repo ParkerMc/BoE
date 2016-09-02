@@ -10,3 +10,5 @@ For the voice testing you must have [pyaudio.](http://people.csail.mit.edu/huber
 
 Must have a ssl certificate run command and put ssl.pem in to the server folder.
 `openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ssl.pem -out ssl.pem`
+Or for a non self-signed 
+`letsencrypt certonly --standalone -d domain.com`
