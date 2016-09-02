@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"><meta charset="utf-8">
+
+<title>WebSocket Test</title>
+
+<script language="javascript" type="text/javascript">
+
+  function init()
+  {
+	document.myform.url.value = "wss://localhost:8000/"
+	document.myform.inputtext.value = "Hello World!"
+	document.myform.disconnectButton.disabled = true;
+  }
+
+  function doConnect()
+  {
+    websocket = new WebSocket( document.myform.url.value);
+    websocket.onopen = function(evt) { onOpen(evt) };
+    websocket.onclose = function(evt) { onClose(evt) };
+    websocket.onmessage = function(evt) { onMessage(evt) };
+    websocket.onerror = function(evt) { onError(evt) };
+  }
+
+  function onOpen(evt)
+  {
+    writeToScreen("connected\n");
+	document.myform.connectButton.disabled = true;
+	document.myform.disconnectButton.disabled = false;
+  }
+
+  function onClose(evt)
+  {
+    writeToScreen("disconnected\n");
+	document.myform.connectButton.disabled = false;
+	document.myform.disconnectButton.disabled = true;
+  }
+
+  function onMessage(evt)
+  {
+    writeToScreen("response: " + evt.data + '\n');
+  }
+
+  function onError(evt)
+  {
+    writeToScreen('error: ' + evt.data + '\n');
+
+	websocket.close();
+
+	document.myform.connectButton.disabled = false;
+	document.myform.disconnectButton.disabled = true;
+
+  }
+
+  function doSend(message)
+  {
+    writeToScreen("sent: " + message + '\n');
+    websocket.send(message);
+  }
+
+  function writeToScreen(message)
+  {
+    document.myform.outputtext.value += message
+	document.myform.outputtext.scrollTop = document.myform.outputtext.scrollHeight;
+
+  }
+
+  window.addEventListener("load", init, false);
+
+
+   function sendText() {
+		doSend( document.myform.inputtext.value );
+   }
+
+  function clearText() {
+		document.myform.outputtext.value = "";
+   }
+
+   function doDisconnect() {
+		websocket.close();
+   }
+
+
+</script>
+
+</head><body><div id="output"></div>
+
+<form name="myform">
+<p>
+<textarea name="outputtext" rows="20" cols="50"></textarea>
+</p>
+<p>
+<textarea name="inputtext" cols="50">Hello World!</textarea>
+</p>
+<p>
+<textarea name="url" cols="50">wss://localhost:8000/</textarea>
+</p>
+<p>
+<input name="sendButton" value="Send" onclick="sendText();" type="button">
+<input name="clearButton" value="Clear" onclick="clearText();" type="button">
+<input disabled="disabled" name="disconnectButton" value="Disconnect" onclick="doDisconnect();" type="button">
+<input name="connectButton" value="Connect" onclick="doConnect();" type="button">
+</p>
+
+
+</form>
+
+</body></html> 
