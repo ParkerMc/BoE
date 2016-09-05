@@ -1,8 +1,10 @@
-import datetime, settings
-
+import datetime
+import settings
 from os import path
-from webSocketServer import SSLWebSocketServer, WebSocket
+
 from passlib.hash import sha256_crypt
+
+from webSocketServer import SSLWebSocketServer, WebSocket
 
 
 global clients
@@ -118,7 +120,9 @@ class Chat(WebSocket):
 				self.username = ""
 				self.loggedin = False
 				for client in clients:
-					client.send("\x05"+self.username +"@"+self.address[0] + ' - disconnected')
+					client.send("\x05"+self.username + "@" + self.address[0] + ' - disconnected')
+
+
 				clients.remove(self)
 
 		else: self.mods.newid(self, self.server)
@@ -129,6 +133,7 @@ class Chat(WebSocket):
 		self.makeingUser = False
 		self.username = ""
 		print self.address, 'connected'
+		self.send("\x00")
 
 	def handleClose(self):
 		self.mods.Cclose(self, self.server)
