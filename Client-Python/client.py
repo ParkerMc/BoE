@@ -1,5 +1,9 @@
-import chat, sys, gui
+#!/usr/bin/python
 from PyQt4 import QtGui
+
+import chat
+import gui
+import sys
 
 if __name__ == "__main__":
     if "-t" in sys.argv: chat.bash()
