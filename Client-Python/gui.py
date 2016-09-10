@@ -1,3 +1,4 @@
+from serverMGR import Socket
 from PyQt4 import QtGui, uic
 from os import path
 
@@ -10,6 +11,7 @@ class Main(QtGui.QMainWindow, main_class):
 	def __init__(self, parent=None):
 		QtGui.QMainWindow.__init__(self, parent)  # Run gui init
 		self.setupUi(self)  # Setup Ui
+		self.socket = Socket()
 		self.servers = {}  # Array for servers
 		if path.isfile("servers.csv"):  # If server file exists
 			f = open("servers.csv", "r")  # Open file for reading
@@ -21,6 +23,8 @@ class Main(QtGui.QMainWindow, main_class):
 					self.servers[j[0]] = (j[1], j[2], j[3])  # Add to array
 		self.serverList = ServerList(self)  # Load server list
 		self.serverList.show()  # Show server list
+		# Connect buttons
+		self.actionConnect.triggered.connect(self.connectToServer)
 
 	def chatUpdate(self):
 		pass
@@ -32,7 +36,8 @@ class Main(QtGui.QMainWindow, main_class):
 		pass
 
 	def connectToServer(self):
-		pass
+		self.serverList = ServerList(self)  # Load server list
+		self.serverList.show()  # Show server list
 
 
 class ServerList(QtGui.QDialog, serverList_class):
@@ -40,6 +45,7 @@ class ServerList(QtGui.QDialog, serverList_class):
 		QtGui.QDialog.__init__(self, parent)  # Run gui init
 		self.setupUi(self)  # Setup Ui
 		# Defining variables
+		self.socket = parent.socket
 		self.addServer = None
 		self.servers = parent.servers
 		self.items = {}
@@ -61,17 +67,27 @@ class ServerList(QtGui.QDialog, serverList_class):
 		# Connect buttons
 		self.addButton.clicked.connect(self.add)
 		self.editButton.clicked.connect(self.edit)
+		self.connectButton.clicked.connect(self.connectToServer)
 		# Load servers from array
 		for i, j in self.servers.items():
 			self.items[i] = QtGui.QTreeWidgetItem((i, "", ""))
 			self.serversL.addTopLevelItems([self.items[i]])
 
+	def connectToServer(self):
+		if len(self.serversL.selectedItems()) > 0:  # If item is selected
+			key = str(self.serversL.selectedItems()[0].text(0))  # Get the key
+			print self.servers[key][0]
+			print self.servers[key][1]
+			self.socket.connect(str(self.servers[key][0]), str(self.servers[key][1]))  # Try to connect
+			message = self.socket.getMessages("0")
+			while len(message):
+				message = self.socket.getMessages("0")
 	def add(self):
 		self.addServer = AddServer("", "", "", "", False, self)  # Load GUI
 		self.addServer.exec_()  # Run GUI
 		if self.addServer.saved:  # If save
-			self.items[self.addServer.data[0]] = QtGui.QTreeWidgetItem((self.addServer.data[0], "", ""))
-			self.serversL.addTopLevelItems([self.items[self.addServer.data[0]]])
+			self.items[self.addServer.data[0]] = QtGui.QTreeWidgetItem((self.addServer.data[0], "", ""))  # Set item
+			self.serversL.addTopLevelItems([self.items[self.addServer.data[0]]]) # add Item
 			self.servers[self.addServer.data[0]] = (self.addServer.data[1], self.addServer.data[2], self.addServer.data[3])  # Add to array
 			f = open("servers.csv", "w")  # Open file for writing
 			for i, j in self.servers.items():  # Loop though array
@@ -80,7 +96,7 @@ class ServerList(QtGui.QDialog, serverList_class):
 
 	def edit(self):
 		if len(self.serversL.selectedItems()) > 0:  # If item is selected
-			key = str(self.serversL.selectedItems()[0].text(0))
+			key = str(self.serversL.selectedItems()[0].text(0)) # Get the key
 			self.addServer = AddServer(key, self.servers[key][0], self.servers[key][1], self.servers[key][2], True, self)  # Load GUI
 			self.addServer.exec_()  # Run GUI
 			if self.addServer.saved:  # If save

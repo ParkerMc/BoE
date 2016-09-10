@@ -32,10 +32,13 @@ class Socket:
 	def on_message(self, ws, message):
 		pid = unpack(">i", message[:1])[0]
 		message = message[1:]
+		print pid
+		print message
 		self.messages[pid].append(message)
 		self.newMsg.emit()
 
 	def getMessages(self, pid):
+		pid = len(pid)
 		out = []
 		for i in self.messages[pid]:
 			out.append(i)
