@@ -22,7 +22,6 @@ class Main(QtGui.QMainWindow, main_class):
         self.setupUi(self)
         global updateChat
         updateChat = self.updateChat
-        self.actionConnect.triggered.connect(self.connect)
         self.sendB.clicked.connect(self.send)
         self.text.returnPressed.connect(self.send)
         self.updateChat.connect(self.chatUpdate)
