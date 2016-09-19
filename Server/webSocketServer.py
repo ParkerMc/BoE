@@ -640,7 +640,7 @@ class SSLWebSocketServer(SimpleWebSocketServer):
 		return sslsock
 
 	def _constructWebSocket(self, sock, address):
-		ws = self.websocketclass(self, sock, address)
+		ws = self.websocketclass(self, sock, address, self.mods)
 		ws.usingssl = True
 		return ws
 
