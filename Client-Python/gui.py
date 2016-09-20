@@ -1,6 +1,7 @@
-from serverMGR import Socket
 from PyQt4 import QtGui, uic
 from os import path
+
+from serverMGR import Socket
 
 main_class = uic.loadUiType("ui/main.ui")[0]
 serverList_class = uic.loadUiType("ui/serverList.ui")[0]
@@ -76,8 +77,6 @@ class ServerList(QtGui.QDialog, serverList_class):
     def connectToServer(self):
         if len(self.serversL.selectedItems()) > 0:  # If item is selected
             key = str(self.serversL.selectedItems()[0].text(0))  # Get the key
-            print self.servers[key][0]
-            print self.servers[key][1]
             self.socket.connect(str(self.servers[key][0]), str(self.servers[key][1]))  # Try to connect
             message = self.socket.getMessages("0")
             while len(message):
@@ -88,11 +87,7 @@ class ServerList(QtGui.QDialog, serverList_class):
         if self.addServer.saved:  # If save
             self.items[self.addServer.data[0]] = QtGui.QTreeWidgetItem((self.addServer.data[0], "", ""))  # Set item
             self.serversL.addTopLevelItems([self.items[self.addServer.data[0]]]) # add Item
-            self.servers[self.addServer.data[0]] = (self.addServer.data[1], self.addServer.data[2], self.addServer.data[3])  # Add to array
-            f = open("servers.csv", "w")  # Open file for writing
-            for i, j in self.servers.items():  # Loop though array
-                f.write(str(i) + "," + str(j[0]) + "," + str(j[1]) + "," + str(j[2]) + "\n")  # Save to file
-            f.close()  # Close file
+            self.save()
 
     def edit(self):
         if len(self.serversL.selectedItems()) > 0:  # If item is selected
@@ -105,13 +100,14 @@ class ServerList(QtGui.QDialog, serverList_class):
                     self.items[self.addServer.data[0]] = self.items[key]
                     del self.items[key]
                     self.items[self.addServer.data[0]].setText(0, self.addServer.data[0])
+                self.save()
 
-                self.servers[self.addServer.data[0]] = (self.addServer.data[1], self.addServer.data[2], self.addServer.data[3])  # Add to array
-                f = open("servers.csv", "w")  # Open file for writing
-                for i, j in self.servers.items():  # Loop though array
-                    f.write(str(i) + "," + str(j[0]) + "," + str(j[1]) + "," + str(j[2]) + "\n")  # Save to file
-                f.close()  # Close file
-
+    def save(self):
+        self.servers[self.addServer.data[0]] = (self.addServer.data[1], self.addServer.data[2], self.addServer.data[3])  # Add to array
+        f = open("servers.csv", "w")  # Open file for writing
+        for i, j in self.servers.items():  # Loop though array
+            f.write(str(i) + "," + str(j[0]) + "," + str(j[1]) + "," + str(j[2]) + "\n")  # Save to file
+        f.close()  # Close file
 
 class AddServer(QtGui.QDialog, addServer_class):
     def __init__(self, server_name, address, port, username, edit, parent=None):
