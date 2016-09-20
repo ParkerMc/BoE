@@ -83,6 +83,13 @@ class Chat(WebSocket):
         for client in clients:
             client.send(message)
 
+    def afterLogin(self):
+        self.send("\x04" + ("".join(ftext)))
+        clients.append(self)
+        self.sendall("\x05" + self.username + "@" + self.address[0] + " - connected \n")
+        self.send("\x05" + settings.welcomeMsg)
+        self.loggedin = True
+
     def handleMessage(self):
         print(self.data)
         self.mods.message(self, self.server)
@@ -107,21 +114,13 @@ class Chat(WebSocket):
             right = sha256_crypt.verify(self.data, self.hash)
             if right:
                 self.send("\x03" + "correct")
-                self.send("\x04" + ("".join(ftext)))
-                clients.append(self)
-                self.sendall("\x05" + self.username + "@" + self.address[0] + " - connected \n")
-                self.send("\x05" + settings.welcomeMsg)
-                self.loggedin = True
+                self.afterLogin()
             else:
                 self.send("\x01" + "incorect")
         elif self.pId == "\x01" and self.makeingUser:
             passh = sha256_crypt.encrypt(self.data)
             User.makeUser(self.username, passh, 0, "none")
-            self.send("\x04" + ("".join(ftext)))
-            clients.append(self)
-            self.sendall("\x05" + self.username + "@" + self.address[0] + " - connected \n")
-            self.send("\x05" + settings.welcomeMsg)
-            self.loggedin = True
+            self.afterLogin()
             self.makeingUser = False
         elif self.pId == "\x03":
             if self.data == "y":
@@ -143,7 +142,7 @@ class Chat(WebSocket):
         self.loggedin = False
         self.makeingUser = False
         self.username = ""
-        print self.address, 'connected'
+        print(self.address, 'connected')
         self.send("\x00")
 
     def handleClose(self):
