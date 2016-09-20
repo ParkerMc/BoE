@@ -6,22 +6,9 @@ addons:
     code_climate:
         repo_token: ecea6376557adb6628bbcb5d302a5da95ae37126fe939b0ea8d2757f8da0eefa
 before_install:
-  - cd ..
-  - curl -L -O http://sourceforge.net/projects/pyqt/files/sip/sip-4.14.1/sip-4.14.1.tar.gz
-  - tar -xvf sip-4.14.1.tar.gz
-  - cd sip-4.14.1
-  - python configure.py
-  - make -j 2
-  - sudo make install
-  - cd ..
-  - curl -L -O http://sourceforge.net/projects/pyqt/files/PyQt4/PyQt-4.9.5/PyQt-x11-gpl-4.9.5.tar.gz
-  - tar -xvf PyQt-x11-gpl-4.9.5.tar.gz
-  - cd PyQt-x11-gpl-4.9.5
-  - python configure.py --confirm-license &> /dev/null
-  - make -j 2 &> /dev/null
-  - sudo make install &> /dev/null
-  - cd ../BOE
-  - ./setup-pip.sh
+  - ./setup-apt.sh
+virtualenv:
+  system_site_packages: true
 script:
   - cd Client-Python
   - python Test.py
