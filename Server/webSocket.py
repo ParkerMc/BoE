@@ -20,6 +20,8 @@ Cfile = None
 ftext = []
 
 class History():
+	def __init__(self):
+		pass
 
 	@staticmethod
 	def load():
@@ -48,7 +50,10 @@ class History():
 		ftext.append(text+"\n") # Add text to string
 		Cfile.write(text+"\n") # Add text to file
 
+
 class User():
+	def __init__(self):
+		pass
 
 	@staticmethod
 	def loadusers():
@@ -72,6 +77,7 @@ class User():
 class Chat(WebSocket):
 
 	def handleMessage(self):
+		print self.data
 		self.mods.message(self, self.server)
 		if self.data == "quit":
 			self.close()

@@ -2,6 +2,9 @@ language: python
 sudo: required
 python:
   - "2.7"
+addons:
+    code_climate:
+        repo_token: ecea6376557adb6628bbcb5d302a5da95ae37126fe939b0ea8d2757f8da0eefa
 before_install:
   - cd ..
   - curl -L -O http://sourceforge.net/projects/pyqt/files/sip/sip-4.14.1/sip-4.14.1.tar.gz
