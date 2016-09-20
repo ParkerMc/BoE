@@ -53,9 +53,9 @@ class login(QtGui.QDialog, login_class):
     def __init__(self, parent=None):
         global uws
         uws = socket(AF_INET, SOCK_STREAM)
-    	uws.connect((settings.host, settings.port))
+        uws.connect((settings.host, settings.port))
         global s
-    	s = sslc(uws)
+        s = sslc(uws)
         QtGui.QDialog.__init__(self, parent)
         self.setupUi(self)
         self.Login.clicked.connect(self.login)
@@ -122,11 +122,11 @@ class createuser(QtGui.QDialog, createuser_class):
         self.accept()
 
 def recv(s):
-	data = s.read(1024)
-	try:
-		return data[:1], data[1:]; # return data
-	except:
-		return None;
+    data = s.read(1024)
+    try:
+        return data[:1], data[1:]; # return data
+    except:
+        return None;
 
 def recive():
     global running

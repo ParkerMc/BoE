@@ -30,9 +30,9 @@ data, addr = s.recvfrom(1024)
 print 'Connected by', addr
 i=1
 while data != '':
-    stream.write(data)    	
+    stream.write(data)      
     data , addr = s.recvfrom(1024)
-    i=i+1
+    i += 1
     print i
     frames.append(data)
 
