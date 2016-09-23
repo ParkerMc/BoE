@@ -104,7 +104,6 @@ class Chat(WebSocket):
         self.loggedin = True
 
     def handleMessage(self):
-        print self.data
         self.mods.message(self, self.server)
         if self.data == "quit":
             self.close()

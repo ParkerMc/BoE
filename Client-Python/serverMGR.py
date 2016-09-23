@@ -1,6 +1,7 @@
 import ssl
 from struct import pack, unpack
 from threading import Thread
+from time import sleep
 
 import websocket
 from PyQt4.QtCore import pyqtSignal, QObject
@@ -27,8 +28,11 @@ class Socket(QObject):
         self.thread.start()
 
     def disconnect(self):
-        self.ws.send(pack(">i", 5) + "quit")
-        self.ws.close()
+        if self.ws is not None:
+            self.ws.send(pack(">i", 5) + "quit")
+            sleep(.5)
+            self.ws.close()
+            self.ws = None
 
     def send(self, pid, msg):
         self.ws.send(str(pack(">i", pid)) + msg)
@@ -41,6 +45,12 @@ class Socket(QObject):
         print message
         self.messages[int(pid)].append(message)
         self.newMsg.emit()
+
+    def waitTillMessage(self, *pid):
+        ids, messages = self.getMessages(*pid)
+        while len(messages) == 0:
+            ids, messages = self.getMessages(*pid)
+        return ids, messages
 
     def getMessages(self, *pid):
         out = []
