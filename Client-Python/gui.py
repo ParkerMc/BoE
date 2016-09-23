@@ -1,5 +1,6 @@
-from PyQt4 import QtGui, uic
 from os import path
+
+from PyQt4 import QtGui, uic
 
 from serverMGR import Socket
 
@@ -7,6 +8,7 @@ main_class = uic.loadUiType("ui/main.ui")[0]
 serverList_class = uic.loadUiType("ui/serverList.ui")[0]
 addServer_class = uic.loadUiType("ui/addServer.ui")[0]
 login_class = uic.loadUiType("ui/login.ui")[0]
+createUser_class = uic.loadUiType("ui/createuser.ui")[0]
 
 
 class Main(QtGui.QMainWindow, main_class):
@@ -27,6 +29,8 @@ class Main(QtGui.QMainWindow, main_class):
         self.serverList.show()  # Show server list
         # Connect buttons
         self.actionConnect.triggered.connect(self.connectToServer)
+        self.actionDisconnect.triggered.connect(self.socket.disconnect)
+        self.actionQuit.triggered.connect(self.close)
         self.socket.newMsg.connect(self.chatUpdate)
         self.sendB.clicked.connect(self.send)
         self.text.returnPressed.connect(self.send)
@@ -59,6 +63,7 @@ class ServerList(QtGui.QDialog, serverList_class):
         self.socket = parent.socket
         self.addServer = None
         self.login = None
+        self.makeUser = None
         self.servers = parent.servers
         self.items = {}
         # Create buttons
@@ -93,27 +98,21 @@ class ServerList(QtGui.QDialog, serverList_class):
         if len(self.serversL.selectedItems()) > 0:  # If item is selected
             key = str(self.serversL.selectedItems()[0].text(0))  # Get the key
             self.socket.connect(str(self.servers[key][0]), str(self.servers[key][1]))  # Try to connect
-            ids, messages = self.socket.getMessages(0)
-            while len(messages) == 0:
-                ids, messages = self.socket.getMessages(0)
+            ids, messages = self.socket.waitTillMessage(0)
             self.socket.send(0, str(self.servers[key][2]))
-            ids, messages = self.socket.getMessages(3, 1)
-            while len(messages) == 0:
-                ids, messages = self.socket.getMessages(3, 1)
+            ids, messages = self.socket.waitTillMessage(3, 1)
             if ids[0] == 1:
                 while True:
-                    self.login = Login(str(self.servers[key][2]), self)  # Load GUI
+                    self.login = Login(str(self.servers[key][2]), False, self)  # Load GUI
                     self.login.exec_()  # Run GUI
                     if self.login.tryPass:
+                        self.socket.send(0, self.login.username)
+                        ids, messages = self.socket.waitTillMessage(1)
                         self.socket.send(1, self.login.password)
-                        ids, messages = self.socket.getMessages(1)
-                        while len(messages) == 0:
-                            ids, messages = self.socket.getMessages(1)
+                        ids, messages = self.socket.waitTillMessage(1)
                         if messages[0] == "Correct":
                             self.close()
-                            ids, messages = self.socket.getMessages(4)
-                            while len(messages) == 0:
-                                ids, messages = self.socket.getMessages(4)
+                            ids, messages = self.socket.waitTillMessage(4)
                             for i in messages:
                                 self.parent().chatBox.append(str(i))
                             break
@@ -123,7 +122,15 @@ class ServerList(QtGui.QDialog, serverList_class):
                             msgbox.exec_()
                     else:
                         break
-
+            else:
+                self.makeUser = CreateUser(self)
+                self.makeUser.exec_()
+                if self.makeUser.makeUser:
+                    while True:
+                        self.login = Login(str(self.servers[key][2]), True, self)  # Load GUI
+                        self.login.exec_()  # Run GUI
+                        if self.login.tryPass:
+                            pass
 
 
     def add(self):
@@ -199,12 +206,13 @@ class AddServer(QtGui.QDialog, addServer_class):
 
 
 class Login(QtGui.QDialog, login_class):
-    def __init__(self, username, parent=None):
+    def __init__(self, username, enabled, parent=None):
         QtGui.QDialog.__init__(self, parent)
         self.setupUi(self)
         self.password = None
         self.username = username
         self.user.setText(username)
+        self.user.setEnabled(enabled)
         self.Login.clicked.connect(self.login)
         self.tryPass = False
 
@@ -212,4 +220,17 @@ class Login(QtGui.QDialog, login_class):
         self.tryPass = True
         self.password = str(self.passwd.text())
         self.username = str(self.user.text())
+        self.close()
+
+
+class CreateUser(QtGui.QDialog, createUser_class):
+    def __init__(self, parent=None):
+        QtGui.QDialog.__init__(self, parent)
+        self.setupUi(self)
+        self.yes.clicked.connect(self.make)
+        self.no.clicked.connect(self.close)
+        self.makeUser = False
+
+    def make(self):
+        self.makeUser = True
         self.close()
