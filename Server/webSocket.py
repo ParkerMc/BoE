@@ -78,6 +78,8 @@ class User():
 
 
 class Chat(WebSocket):
+    def connectionMsg(self, msg):
+        self.sendall("\x05" + self.username + "@" + self.address[0] + " - " + msg + "\n")
 
     def sendall(self, message):
         for client in clients:
@@ -86,19 +88,17 @@ class Chat(WebSocket):
     def afterLogin(self):
         self.send("\x04" + ("".join(ftext)))
         clients.append(self)
-        self.sendall("\x05" + self.username + "@" + self.address[0] + " - connected \n")
+        self.connectionMsg("Connected")
         self.send("\x05" + settings.welcomeMsg)
         self.loggedin = True
 
     def handleMessage(self):
-        print(self.data)
         self.mods.message(self, self.server)
         if self.data == "quit":
             self.close()
         elif self.loggedin and self.pId == "\x05":
             History.add(self.data)
-            for client in clients:
-                client.send("\x05" + self.username + ' : ' + self.data)
+            self.sendall("\x05" + self.username + ' : ' + self.data)
         elif self.pId == "\x00":
             found = False
             for i, j, k, l in users:
@@ -113,11 +113,11 @@ class Chat(WebSocket):
         elif self.pId == "\x01" and not self.makeingUser:
             right = sha256_crypt.verify(self.data, self.hash)
             if right:
-                self.send("\x03" + "correct")
+                self.send("\x03" + "Correct")
                 self.afterLogin()
             else:
-                self.send("\x01" + "incorect")
-        elif self.pId == "\x01" and self.makeingUser:
+                self.send("\x01" + "Incorrect")
+        elif self.pId == "\x01":
             passh = sha256_crypt.encrypt(self.data)
             User.makeUser(self.username, passh, 0, "none")
             self.afterLogin()
@@ -130,7 +130,7 @@ class Chat(WebSocket):
             if self.loggedin:
                 self.username = ""
                 self.loggedin = False
-                self.sendall("\x05" + self.username + "@" + self.address[0] + ' - disconnected')
+                self.connectionMsg("Disconnected")
 
                 clients.remove(self)
 

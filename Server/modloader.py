@@ -1,7 +1,6 @@
-import mods
-from mods import *
 import inspect
 
+import mods
 
 
 class modloader():
@@ -14,21 +13,12 @@ class modloader():
         self.ScloseL = []
         self.CcloseL = []
         for i in mods.__all__:
-            print i
-            print inspect.getmembers(getattr(mods, i), predicate=inspect.isfunction)
             for j, k in inspect.getmembers(getattr(mods, i), predicate=inspect.isfunction):
-                if j == "Sinit":
-                    self.SinitL.append(k)
-                if j == "Cinit":
-                    self.CnitL.append(k)
-                elif j == "message":
-                    self.messageL.append(k)
-                elif j == "newid":
-                    self.newidL.append(k)
-                elif j == "Sclose":
-                    self.ScloseL.append(k)
-                elif j == "Cclose":
-                    self.CcloseL.append(k)
+                for l, m in [(self.SinitL, "Sinit"), (self.CnitL, "Cinit"), (self.messageL, "message"),
+                             (self.newidL, "newid"), (self.ScloseL, "Sclose"), (self.CcloseL, "Cclose")]:
+                    if j == m:
+                        l.append(k)
+                        break
 
     def Sinit(self, server):
         for i in self.SinitL:

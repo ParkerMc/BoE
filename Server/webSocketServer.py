@@ -339,18 +339,22 @@ class WebSocket(object):
             self.state = MASK
         else:
             # if there is no mask and no payload we are done
-            if self.length <= 0:
-                try:
-                    self._handlePacket()
-                finally:
-                    self.state = HEADERB1
-                    self.data = bytearray()
+            self.noMask()
 
-            # we have no mask and some payload
-            else:
-                # self.index = 0
+    def noMask(self):
+        if self.length <= 0:
+            try:
+                self._handlePacket()
+            finally:
+                self.state = HEADERB1
                 self.data = bytearray()
-                self.state = PAYLOAD
+
+        # we have no mask and some payload
+        else:
+            # self.index = 0
+            self.data = bytearray()
+            self.state = PAYLOAD
+
     def _parseMessage(self, byte):
         # read in the header
         if self.state == HEADERB1:
