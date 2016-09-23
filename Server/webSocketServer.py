@@ -99,6 +99,15 @@ class WebSocket(object):
         self.maxpayload = MAXPAYLOAD
         self.mods.Cinit(self, self.server)
 
+    def handleMessage(self):
+        pass
+
+    def handleConnected(self):
+        pass
+
+    def handleClose(self):
+        pass
+
     def _handlePacket(self):
         if self.opcode == PONG or self.opcode == PING:
             if len(self.data) > 125:
@@ -201,7 +210,7 @@ class WebSocket(object):
                 self.data = self.data[1:]
                 self.handleMessage()
 
-    def _handleData(self):
+    def handleData(self):
         # do the HTTP header and handshake
         if not self.handshaked:
 
@@ -262,7 +271,7 @@ class WebSocket(object):
         finally:
             self.closed = True
 
-    def _sendBuffer(self, buff):
+    def sendBuffer(self, buff):
         size = len(buff)
         tosend = size
         already_sent = 0
@@ -286,7 +295,7 @@ class WebSocket(object):
 
         return None
 
-    def send(self, data, fin=False):
+    def send(self, data):
         """
                 Send websocket data frame to the client.
                 If data is a unicode object then the frame is sent as Text.
@@ -303,7 +312,7 @@ class WebSocket(object):
 
         b1 = 0
         b2 = 0
-        if not fin is False:
+        if not fin:
             b1 |= 0x80
         b1 |= opcode
 
@@ -317,7 +326,7 @@ class WebSocket(object):
             b2 |= length
             payload.append(b2)
 
-        elif length >= 126 and length <= 65535:
+        elif 126 <= length <= 65535:
             b2 |= 126
             payload.append(b2)
             payload.extend(struct.pack("!H", length))
@@ -332,16 +341,16 @@ class WebSocket(object):
 
         self.sendq.append((opcode, payload))
 
-    def mask(self):
+    def _mask(self):
         # if we have a mask we must read it
         if self.hasmask:
             self.maskarray = bytearray()
             self.state = MASK
         else:
             # if there is no mask and no payload we are done
-            self.noMask()
+            self._noMask()
 
-    def noMask(self):
+    def _noMask(self):
         if self.length <= 0:
             try:
                 self._handlePacket()
@@ -387,7 +396,7 @@ class WebSocket(object):
             if length <= 125:
                 self.length = length
 
-                self.mask()
+                self._mask()
 
             elif length == 126:
                 self.lengtharray = bytearray()
@@ -404,7 +413,7 @@ class WebSocket(object):
 
             if len(self.lengtharray) == 2:
                 self.length = struct.unpack_from('!H', self.lengtharray)[0]
-                self.mask()
+                self._mask()
 
         elif self.state == LENGTHLONG:
 
@@ -418,7 +427,7 @@ class WebSocket(object):
 
                 if self.hasmask:
                     self.maskarray = bytearray()
-                    self.mask()
+                    self._mask()
 
         # MASK STATE
         elif self.state == MASK:
@@ -429,18 +438,7 @@ class WebSocket(object):
 
             if len(self.maskarray) == 4:
                 # if there is no mask and no payload we are done
-                if self.length <= 0:
-                    try:
-                        self._handlePacket()
-                    finally:
-                        self.state = HEADERB1
-                        self.data = bytearray()
-
-                    # we have no mask and some payload
-                else:
-                    # self.index = 0
-                    self.data = bytearray()
-                    self.state = PAYLOAD
+                self._noMask()
 
         # PAYLOAD STATE
         elif self.state == PAYLOAD:
@@ -467,7 +465,7 @@ class WebSocket(object):
 
 class SimpleWebSocketServer(object):
     def __init__(self, host, port, websocketclass, selectInterval=0.1):
-        self.mods = modloader.modloader()
+        self.mods = modloader.modLoader()
         self.websocketclass = websocketclass
         self.serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -518,7 +516,7 @@ class SimpleWebSocketServer(object):
                 try:
                     while client.sendq:
                         opcode, payload = client.sendq.popleft()
-                        remaining = client._sendBuffer(payload)
+                        remaining = client.sendBuffer(payload)
                         if remaining is not None:
                             client.sendq.appendleft((opcode, remaining))
                             break
@@ -547,7 +545,7 @@ class SimpleWebSocketServer(object):
                         continue
                     client = self.connections[ready]
                     try:
-                        client._handleData()
+                        client.handleData()
                     except:
                         self.closeClient(client, ready)
 

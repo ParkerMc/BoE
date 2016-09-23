@@ -81,18 +81,20 @@ class ServerList(QtGui.QDialog, serverList_class):
             message = self.socket.getMessages("0")
             while len(message):
                 message = self.socket.getMessages("0")
+
     def add(self):
         self.addServer = AddServer("", "", "", "", False, self)  # Load GUI
         self.addServer.exec_()  # Run GUI
         if self.addServer.saved:  # If save
             self.items[self.addServer.data[0]] = QtGui.QTreeWidgetItem((self.addServer.data[0], "", ""))  # Set item
-            self.serversL.addTopLevelItems([self.items[self.addServer.data[0]]]) # add Item
+            self.serversL.addTopLevelItems([self.items[self.addServer.data[0]]])  # add Item
             self.save()
 
     def edit(self):
         if len(self.serversL.selectedItems()) > 0:  # If item is selected
-            key = str(self.serversL.selectedItems()[0].text(0)) # Get the key
-            self.addServer = AddServer(key, self.servers[key][0], self.servers[key][1], self.servers[key][2], True, self)  # Load GUI
+            key = str(self.serversL.selectedItems()[0].text(0))  # Get the key
+            self.addServer = AddServer(key, self.servers[key][0], self.servers[key][1], self.servers[key][2], True,
+                                       self)  # Load GUI
             self.addServer.exec_()  # Run GUI
             if self.addServer.saved:  # If save
                 if key != self.addServer.data[0]:
@@ -103,11 +105,13 @@ class ServerList(QtGui.QDialog, serverList_class):
                 self.save()
 
     def save(self):
-        self.servers[self.addServer.data[0]] = (self.addServer.data[1], self.addServer.data[2], self.addServer.data[3])  # Add to array
+        self.servers[self.addServer.data[0]] = (
+            self.addServer.data[1], self.addServer.data[2], self.addServer.data[3])  # Add to array
         f = open("servers.csv", "w")  # Open file for writing
         for i, j in self.servers.items():  # Loop though array
             f.write(str(i) + "," + str(j[0]) + "," + str(j[1]) + "," + str(j[2]) + "\n")  # Save to file
         f.close()  # Close file
+
 
 class AddServer(QtGui.QDialog, addServer_class):
     def __init__(self, server_name, address, port, username, edit, parent=None):
@@ -132,8 +136,10 @@ class AddServer(QtGui.QDialog, addServer_class):
         self.buttonBox.buttons()[0].setEnabled(edit)  # Turn off button ot leave on
 
     def change(self):
-        if str(self.name.text()).strip() != "" and str(self.ip.text()).strip() != "" and str(self.port.text()).strip() != "" and str(self.username.text()).strip() != "":  # If all fields are filled
-            if str(self.name.text()) not in self.servers.keys() or str(self.name.text()) == self.oldName:  # If new name or not used name
+        if str(self.name.text()).strip() != "" and str(self.ip.text()).strip() != "" and str(
+                self.port.text()).strip() != "" and str(self.username.text()).strip() != "":  # If all fields are filled
+            if str(self.name.text()) not in self.servers.keys() or str(
+                    self.name.text()) == self.oldName:  # If new name or not used name
                 self.buttonBox.buttons()[0].setEnabled(True)  # Turn on button
             else:
                 self.buttonBox.buttons()[0].setEnabled(False)  # Turn off button
@@ -144,5 +150,5 @@ class AddServer(QtGui.QDialog, addServer_class):
         self.saved = True  # Save data on return
         # noinspection PyPep8
         self.data = (str(self.name.text()), str(self.ip.text()), str(self.port.text()),
-                    str(self.username.text()))  # Get data for saving
+                     str(self.username.text()))  # Get data for saving
         self.close()  # Close dialog

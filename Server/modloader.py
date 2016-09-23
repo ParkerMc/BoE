@@ -3,7 +3,7 @@ import inspect
 import mods
 
 
-class modloader():
+class ModLoader:
 
     def __init__(self):
         self.SinitL = []
@@ -14,7 +14,7 @@ class modloader():
         self.CcloseL = []
         for i in mods.__all__:
             for j, k in inspect.getmembers(getattr(mods, i), predicate=inspect.isfunction):
-                for l, m in [(self.SinitL, "Sinit"), (self.CnitL, "Cinit"), (self.messageL, "message"),
+                for l, m in [(self.SinitL, "Sinit"), (self.CinitL, "Cinit"), (self.messageL, "message"),
                              (self.newidL, "newid"), (self.ScloseL, "Sclose"), (self.CcloseL, "Cclose")]:
                     if j == m:
                         l.append(k)
