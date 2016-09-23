@@ -1,8 +1,8 @@
 # Echo server program
 import socket
-import pyaudio
 import wave
-import time
+
+import pyaudio
 
 CHUNK = 512
 FORMAT = pyaudio.paInt16
@@ -20,18 +20,17 @@ stream = p.open(format=p.get_format_from_width(WIDTH),
                 output=True,
                 frames_per_buffer=CHUNK)
 
-
-HOST = ''                 
-PORT = 8001              
+HOST = ''
+PORT = 8001
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.bind((HOST, PORT))
 
 data, addr = s.recvfrom(1024)
 print 'Connected by', addr
-i=1
+i = 1
 while data != '':
-    stream.write(data)      
-    data , addr = s.recvfrom(1024)
+    stream.write(data)
+    data, addr = s.recvfrom(1024)
     i += 1
     print i
     frames.append(data)
@@ -46,4 +45,4 @@ wf.close()
 stream.stop_stream()
 stream.close()
 p.terminate()
-#s.sendto(daten, addr)
+# s.sendto(daten, addr)

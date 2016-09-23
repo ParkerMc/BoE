@@ -1,17 +1,16 @@
 import socket
-import pyaudio
-import wave
-import sys
 
-#record
-CHUNK = 512#1024
+import pyaudio
+
+# record
+CHUNK = 512  # 1024
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
-RATE = 22050#44100
+RATE = 22050  # 44100
 RECORD_SECONDS = 10
 
-HOST = 'localhost'    
-PORT = 8001              
+HOST = 'localhost'
+PORT = 8001
 
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.connect((HOST, PORT))
@@ -29,10 +28,10 @@ print("*recording")
 
 frames = []
 
-for i in range(0, int(RATE/CHUNK*RECORD_SECONDS)):
- data  = stream.read(CHUNK)
- frames.append(data)
- s.sendall(data)
+for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
+    data = stream.read(CHUNK)
+    frames.append(data)
+    s.sendall(data)
 s.sendall("")
 print("*done recording")
 

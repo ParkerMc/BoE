@@ -6,20 +6,20 @@ from passlib.hash import sha256_crypt
 import settings
 from webSocketServer import SSLWebSocketServer, WebSocket
 
-global clients
-global users
-global Cfile
-global ftext
-global users
-
 usersOn = []
 clients = []
 users = []
 Cfile = None
 ftext = []
 
+global clients
+global users
+global Cfile
+global ftext
+global users
 
-class History():
+
+class History:
     def __init__(self):
         pass
 
@@ -53,7 +53,7 @@ class History():
         Cfile.write(text + "\n")  # Add text to file
 
 
-class User():
+class User:
     def __init__(self):
         pass
 
@@ -66,22 +66,32 @@ class User():
         f.close()  # close file
         for i in ft:  # loop though lines
             j = i.replace("\n", "").split(",")  # remove EOL and split
-            if len(j) == 4: users.append((j[0], j[1], j[2], j[3]))  # add data to array
-        ft = None  # delate ft
+            if len(j) == 4:
+                users.append((j[0], j[1], j[2], j[3]))  # add data to array
+        del ft  # delate ft
 
     @staticmethod
     def makeUser(username, passwd, level, icon):  # make user
         users.append((username, passwd, level, icon))  # add to user array
         f = open("users.csv", "w")  # open file to save
-        for i, j, k, l in users: f.write(i + "," + j + "," + str(k) + "," + l + "\n")  # sve to file
+        for i, j, k, l in users:
+            f.write(i + "," + j + "," + str(k) + "," + l + "\n")  # sve to file
         f.close()  # close the file
 
 
 class Chat(WebSocket):
+    def __init__(self, server, sock, address, mods):
+        super(Chat, self).__init__(server, sock, address, mods)
+        self.hash = ""
+        self.loggedin = False
+        self.makeingUser = False
+        self.username = ""
+
     def connectionMsg(self, msg):
         self.sendall("\x05" + self.username + "@" + self.address[0] + " - " + msg + "\n")
 
-    def sendall(self, message):
+    @staticmethod
+    def sendall(message):
         for client in clients:
             client.send(message)
 
@@ -138,10 +148,6 @@ class Chat(WebSocket):
             self.mods.newid(self, self.server)
 
     def handleConnected(self):
-        self.hash = ""
-        self.loggedin = False
-        self.makeingUser = False
-        self.username = ""
         print(self.address, 'connected')
         self.send("\x00")
 
@@ -150,7 +156,7 @@ class Chat(WebSocket):
         try:
             clients.remove(self)
         except:
-            None
+            pass
         print self.address, 'closed'
         if self.loggedin:
             for client in clients:

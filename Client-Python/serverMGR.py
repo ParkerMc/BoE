@@ -3,9 +3,8 @@ from struct import pack, unpack
 from threading import Thread
 from time import sleep
 
-from PyQt4.QtCore import pyqtSignal
-
 import websocket
+from PyQt4.QtCore import pyqtSignal
 
 
 class Socket:
@@ -13,24 +12,28 @@ class Socket:
         self.server = ""
         self.port = 8000
         self.messages = []
+        self.ws = None
+        self.thread = None
         for i in range(0, 7):
             self.messages.append([])
         self.newMsg = pyqtSignal()
+
     def connect(self, server, port):
         websocket.enableTrace(True)
-        self.ws = websocket.WebSocketApp("wss://"+server+":"+port, on_message=self.on_message, on_error=self.on_error, on_close=self.on_close)
-        self.thread = Thread(target=self.ws.run_forever, kwargs={"sslopt":{"cert_reqs": ssl.CERT_NONE}}, name="socket")
+        self.ws = websocket.WebSocketApp("wss://" + server + ":" + port, on_message=self.on_message,
+                                         on_error=self.on_error, on_close=self.on_close)
+        self.thread = Thread(target=self.ws.run_forever, kwargs={"sslopt": {"cert_reqs": ssl.CERT_NONE}}, name="socket")
         self.thread.start()
         sleep(5)
         while True:
-            self.send(01,"test")
+            self.send(01, "test")
 
     def disconnect(self):
         self.ws.send(pack(">i", 5) + "quit")
         self.ws.close()
 
     def send(self, pid, msg):
-        self.ws.send(str(pack(">i", pid))+msg)
+        self.ws.send(str(pack(">i", pid)) + msg)
 
     def on_message(self, ws, message):
         pid = unpack(">i", message[:1])[0]
@@ -48,8 +51,10 @@ class Socket:
             out.remove(i)
         return out
 
-    def on_error(self, ws, error):
+    @staticmethod
+    def on_error(ws, error):
         print error
 
-    def on_close(self, ws):
+    @staticmethod
+    def on_close(ws):
         print "### closed ###"

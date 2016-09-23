@@ -10,7 +10,7 @@ Server/users.csv
 #ssl
 Server/ssl.pem
 
-#chat forlder
+#chat folder
 Server/chat/
 
 # Byte-compiled / optimized / DLL files
