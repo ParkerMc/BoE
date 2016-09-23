@@ -155,14 +155,13 @@ class Chat(WebSocket):
 
     def handleClose(self):
         self.mods.Cclose(self, self.server)
-        try:
-            clients.remove(self)
-        except:
-            pass
-        print self.address, 'closed'
         if self.loggedin:
-            for client in clients:
-                client.send(pack(">i", 5) + self.username + ' - disconnected')
+            self.connectionMsg("Disconnected")
+            try:
+                clients.remove(self)
+            except:
+                pass
+        print self.address, 'closed'
 
 
 def start():
