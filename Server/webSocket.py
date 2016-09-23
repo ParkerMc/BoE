@@ -1,5 +1,6 @@
 import datetime
 from os import path
+from struct import pack
 
 from passlib.hash import sha256_crypt
 
@@ -88,7 +89,7 @@ class Chat(WebSocket):
         self.username = ""
 
     def connectionMsg(self, msg):
-        self.sendall("\x05" + self.username + "@" + self.address[0] + " - " + msg + "\n")
+        self.sendall(pack(">i", 5) + self.username + "@" + self.address[0] + " - " + msg + "\n")
 
     @staticmethod
     def sendall(message):
@@ -96,47 +97,48 @@ class Chat(WebSocket):
             client.send(message)
 
     def afterLogin(self):
-        self.send("\x04" + ("".join(ftext)))
+        self.send(pack(">i", 4) + ("".join(ftext)))
         clients.append(self)
         self.connectionMsg("Connected")
-        self.send("\x05" + settings.welcomeMsg)
+        self.send(pack(">i", 5) + settings.welcomeMsg + "\n")
         self.loggedin = True
 
     def handleMessage(self):
+        print self.data
         self.mods.message(self, self.server)
         if self.data == "quit":
             self.close()
-        elif self.loggedin and self.pId == "\x05":
-            History.add(self.data)
-            self.sendall("\x05" + self.username + ' : ' + self.data)
-        elif self.pId == "\x00":
+        elif self.loggedin and self.pId == pack(">i", 5):
+            History.add(self.username + ' : ' + self.data)
+            self.sendall(pack(">i", 5) + self.username + ' : ' + self.data)
+        elif self.pId == pack(">i", 0):
             found = False
             for i, j, k, l in users:
-                if i == self.data:
+                if i.lower() == self.data.lower():
                     found = True
                     self.hash = j
                     self.username = self.data
-                    self.send("\x01")
+                    self.send(pack(">i", 1))
             if not found:
                 self.username = self.data
-                self.send("\x03")
-        elif self.pId == "\x01" and not self.makeingUser:
+                self.send(pack(">i", 3))
+        elif self.pId == pack(">i", 1) and not self.makeingUser:
             right = sha256_crypt.verify(self.data, self.hash)
             if right:
-                self.send("\x03" + "Correct")
+                self.send(pack(">i", 1) + "Correct")
                 self.afterLogin()
             else:
-                self.send("\x01" + "Incorrect")
-        elif self.pId == "\x01":
+                self.send(pack(">i", 1) + "Incorrect")
+        elif self.pId == pack(">i", 1):
             passh = sha256_crypt.encrypt(self.data)
-            User.makeUser(self.username, passh, 0, "none")
+            User.makeUser(self.username.lower(), passh, 0, "none")
             self.afterLogin()
             self.makeingUser = False
-        elif self.pId == "\x03":
+        elif self.pId == pack(">i", 3):
             if self.data == "y":
                 self.makeingUser = True
-                self.send("\x01")
-        elif self.pId == "\x06":
+                self.send(pack(">i", 1))
+        elif self.pId == pack(">i", 6):
             if self.loggedin:
                 self.username = ""
                 self.loggedin = False
@@ -149,7 +151,7 @@ class Chat(WebSocket):
 
     def handleConnected(self):
         print(self.address, 'connected')
-        self.send("\x00")
+        self.send(pack(">i", 0))
 
     def handleClose(self):
         self.mods.Cclose(self, self.server)
@@ -160,7 +162,7 @@ class Chat(WebSocket):
         print self.address, 'closed'
         if self.loggedin:
             for client in clients:
-                client.send("\x05" + self.username + ' - disconnected')
+                client.send(pack(">i", 5) + self.username + ' - disconnected')
 
 
 def start():

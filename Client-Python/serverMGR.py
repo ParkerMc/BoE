@@ -1,14 +1,16 @@
 import ssl
 from struct import pack, unpack
 from threading import Thread
-from time import sleep
 
 import websocket
-from PyQt4.QtCore import pyqtSignal
+from PyQt4.QtCore import pyqtSignal, QObject
 
 
-class Socket:
+class Socket(QObject):
+    newMsg = pyqtSignal()
+
     def __init__(self):
+        QObject.__init__(self)
         self.server = ""
         self.port = 8000
         self.messages = []
@@ -16,7 +18,6 @@ class Socket:
         self.thread = None
         for i in range(0, 7):
             self.messages.append([])
-        self.newMsg = pyqtSignal()
 
     def connect(self, server, port):
         websocket.enableTrace(True)
@@ -24,9 +25,6 @@ class Socket:
                                          on_error=self.on_error, on_close=self.on_close)
         self.thread = Thread(target=self.ws.run_forever, kwargs={"sslopt": {"cert_reqs": ssl.CERT_NONE}}, name="socket")
         self.thread.start()
-        sleep(5)
-        while True:
-            self.send(01, "test")
 
     def disconnect(self):
         self.ws.send(pack(">i", 5) + "quit")
@@ -36,20 +34,24 @@ class Socket:
         self.ws.send(str(pack(">i", pid)) + msg)
 
     def on_message(self, ws, message):
-        pid = unpack(">i", message[:1])[0]
-        message = message[1:]
-        print pid
         print message
-        self.messages[pid].append(message)
+        pid = unpack(">i", message[:4])[0]
+        print pid
+        message = message[4:]
+        print message
+        self.messages[int(pid)].append(message)
         self.newMsg.emit()
 
-    def getMessages(self, pid):
-        pid = len(pid)
+    def getMessages(self, *pid):
         out = []
-        for i in self.messages[pid]:
-            out.append(i)
-            out.remove(i)
-        return out
+        ids = []
+        for i in pid:
+            i = int(i)
+            for j in self.messages[i]:
+                out.append(j)
+                ids.append(i)
+                self.messages[i].remove(j)
+        return ids, out
 
     @staticmethod
     def on_error(ws, error):
