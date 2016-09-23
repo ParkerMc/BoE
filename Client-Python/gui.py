@@ -6,6 +6,7 @@ from serverMGR import Socket
 main_class = uic.loadUiType("ui/main.ui")[0]
 serverList_class = uic.loadUiType("ui/serverList.ui")[0]
 addServer_class = uic.loadUiType("ui/addServer.ui")[0]
+login_class = uic.loadUiType("ui/login.ui")[0]
 
 
 class Main(QtGui.QMainWindow, main_class):
@@ -26,15 +27,24 @@ class Main(QtGui.QMainWindow, main_class):
         self.serverList.show()  # Show server list
         # Connect buttons
         self.actionConnect.triggered.connect(self.connectToServer)
+        self.socket.newMsg.connect(self.chatUpdate)
+        self.sendB.clicked.connect(self.send)
+        self.text.returnPressed.connect(self.send)
 
     def chatUpdate(self):
-        pass
+        ids, messages = self.socket.getMessages(5)
+        for i in messages:
+            self.chatBox.append(str(i))
 
     def send(self):
-        pass
+        if self.text.text() == "quit":
+            self.socket.disconnect()
+        elif self.text.text() != "":
+            self.socket.send(5, str(self.text.text()))
+            self.text.setText("")
 
     def closeEvent(self, event):
-        pass
+        self.socket.disconnect()
 
     def connectToServer(self):
         self.serverList = ServerList(self)  # Load server list
@@ -48,6 +58,7 @@ class ServerList(QtGui.QDialog, serverList_class):
         # Defining variables
         self.socket = parent.socket
         self.addServer = None
+        self.login = None
         self.servers = parent.servers
         self.items = {}
         # Create buttons
@@ -69,18 +80,51 @@ class ServerList(QtGui.QDialog, serverList_class):
         self.addButton.clicked.connect(self.add)
         self.editButton.clicked.connect(self.edit)
         self.connectButton.clicked.connect(self.connectToServer)
+        self.cancelButton.clicked.connect(self.cancel)
         # Load servers from array
         for i, j in self.servers.items():
             self.items[i] = QtGui.QTreeWidgetItem((i, "", ""))
             self.serversL.addTopLevelItems([self.items[i]])
 
+    def cancel(self):
+        self.close()
+
     def connectToServer(self):
         if len(self.serversL.selectedItems()) > 0:  # If item is selected
             key = str(self.serversL.selectedItems()[0].text(0))  # Get the key
             self.socket.connect(str(self.servers[key][0]), str(self.servers[key][1]))  # Try to connect
-            message = self.socket.getMessages("0")
-            while len(message):
-                message = self.socket.getMessages("0")
+            ids, messages = self.socket.getMessages(0)
+            while len(messages) == 0:
+                ids, messages = self.socket.getMessages(0)
+            self.socket.send(0, str(self.servers[key][2]))
+            ids, messages = self.socket.getMessages(3, 1)
+            while len(messages) == 0:
+                ids, messages = self.socket.getMessages(3, 1)
+            if ids[0] == 1:
+                while True:
+                    self.login = Login(str(self.servers[key][2]), self)  # Load GUI
+                    self.login.exec_()  # Run GUI
+                    if self.login.tryPass:
+                        self.socket.send(1, self.login.password)
+                        ids, messages = self.socket.getMessages(1)
+                        while len(messages) == 0:
+                            ids, messages = self.socket.getMessages(1)
+                        if messages[0] == "Correct":
+                            self.close()
+                            ids, messages = self.socket.getMessages(4)
+                            while len(messages) == 0:
+                                ids, messages = self.socket.getMessages(4)
+                            for i in messages:
+                                self.parent().chatBox.append(str(i))
+                            break
+                        else:
+                            msgbox = QtGui.QMessageBox(self)
+                            msgbox.setText("Incorrect Username or Password.")
+                            msgbox.exec_()
+                    else:
+                        break
+
+
 
     def add(self):
         self.addServer = AddServer("", "", "", "", False, self)  # Load GUI
@@ -152,3 +196,20 @@ class AddServer(QtGui.QDialog, addServer_class):
         self.data = (str(self.name.text()), str(self.ip.text()), str(self.port.text()),
                      str(self.username.text()))  # Get data for saving
         self.close()  # Close dialog
+
+
+class Login(QtGui.QDialog, login_class):
+    def __init__(self, username, parent=None):
+        QtGui.QDialog.__init__(self, parent)
+        self.setupUi(self)
+        self.password = None
+        self.username = username
+        self.user.setText(username)
+        self.Login.clicked.connect(self.login)
+        self.tryPass = False
+
+    def login(self):
+        self.tryPass = True
+        self.password = str(self.passwd.text())
+        self.username = str(self.user.text())
+        self.close()

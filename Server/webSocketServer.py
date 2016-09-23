@@ -182,8 +182,8 @@ class WebSocket(object):
                 else:
                     self.frag_buffer.extend(self.data)
                     self.data = self.frag_buffer
-                self.pId = self.data[:1]
-                self.data = self.data[1:]
+                self.pId = self.data[:4]
+                self.data = self.data[4:]
                 self.handleMessage()
 
                 self.frag_decoder.reset()
@@ -206,8 +206,8 @@ class WebSocket(object):
                         self.data = self.data.decode('utf8', errors='strict')
                     except Exception:
                         raise Exception('invalid utf-8 payload')
-                self.pId = self.data[:1]
-                self.data = self.data[1:]
+                self.pId = self.data[:4]
+                self.data = self.data[4:]
                 self.handleMessage()
 
     def handleData(self):
@@ -465,7 +465,7 @@ class WebSocket(object):
 
 class SimpleWebSocketServer(object):
     def __init__(self, host, port, websocketclass, selectInterval=0.1):
-        self.mods = modloader.modLoader()
+        self.mods = modloader.ModLoader()
         self.websocketclass = websocketclass
         self.serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
