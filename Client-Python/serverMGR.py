@@ -30,6 +30,7 @@ class Socket(QObject):
             self.thread.start()
         except:
             self.ws = None
+
     def disconnect(self):
         if self.ws is not None:
             self.ws.send(pack(">i", 5) + "quit")
