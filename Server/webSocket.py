@@ -34,8 +34,7 @@ class History:
             Cfile = open(filename, "r")  # Open file
             ftext = Cfile.readlines()  # Read lines to array
             Cfile.close()  # Close the file
-            Cfile = open(filename, "w")  # Opens that file in write mode
-            Cfile.write("".join(ftext))  # Write the same lines to the file or else they will get overiden
+            Cfile = open(filename, "a")  # Opens that file in write mode
 
         else:  # If file dose not exist make it
             Cfile = open(filename, "w")  # open file
