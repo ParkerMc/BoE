@@ -1,1 +1,1 @@
-sudo pip2 install websocket-client passlib
+sudo pip2 install -r requirements.txt
