@@ -55,7 +55,7 @@ class ServerList(QtGui.QDialog, serverList_class):
             ids, messages = self.socket.waitTillMessage(3, 1)
             if ids[0] == 1:
                 while True:
-                    self.login = Login(str(self.servers[key][2]), False, self)  # Load GUI
+                    self.login = Login(str(self.servers[key][2]), self)  # Load GUI
                     self.login.exec_()  # Run GUI
                     if self.login.tryPass:
                         self.socket.send(0, self.login.username)
@@ -79,7 +79,7 @@ class ServerList(QtGui.QDialog, serverList_class):
                 self.makeUser.exec_()
                 if self.makeUser.makeUser:
                     while True:
-                        self.login = Login(str(self.servers[key][2]), True, self)  # Load GUI
+                        self.login = Login(str(self.servers[key][2]), self)  # Load GUI
                         self.login.exec_()  # Run GUI
                         if self.login.tryPass:
                             self.socket.send(0, self.login.username)
