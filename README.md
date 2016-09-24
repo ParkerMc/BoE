@@ -6,7 +6,7 @@ A chat platform that intends to look at other chat programs and take only the "B
 
 [Mods](https://github.com/ParkerMc/BoE-Mods)
 
-For the client on windows you need [PyQt4.](https://sourceforge.net/projects/pyqt/files/PyQt4/PyQt-4.11.4/)
+For the client on windows you need run setup-Windows.bat and install [PyQt4.](https://sourceforge.net/projects/pyqt/files/PyQt4/PyQt-4.11.4/)
 
 For the voice testing you must have [pyaudio.](http://people.csail.mit.edu/hubert/pyaudio/)
 
