@@ -94,7 +94,7 @@ class ServerList(QtGui.QDialog, serverList_class):
                             break
 
     def add(self):
-        self.addServer = AddServer("", "", "", "", False, self)  # Load GUI
+        self.addServer = AddServer("", "", "8000", "", False, self)  # Load GUI
         self.addServer.exec_()  # Run GUI
         if self.addServer.saved:  # If save
             self.items[self.addServer.data[0]] = QtGui.QTreeWidgetItem((self.addServer.data[0], "", ""))  # Set item
