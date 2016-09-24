@@ -130,7 +130,16 @@ class ServerList(QtGui.QDialog, serverList_class):
                         self.login = Login(str(self.servers[key][2]), True, self)  # Load GUI
                         self.login.exec_()  # Run GUI
                         if self.login.tryPass:
-                            pass
+                            self.socket.send(0, self.login.username)
+                            ids, messages = self.socket.waitTillMessage(3)
+                            self.close()
+                            self.socket.send(3, "y")
+                            ids, messages = self.socket.waitTillMessage(1)
+                            self.socket.send(1, self.login.password)
+                            ids, messages = self.socket.waitTillMessage(4)
+                            for i in messages:
+                                self.parent().chatBox.append(str(i))
+                            break
 
 
     def add(self):
