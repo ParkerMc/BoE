@@ -27,6 +27,7 @@ class Socket(QObject):
                                              on_error=self.on_error, on_close=self.on_close)
             self.thread = Thread(target=self.ws.run_forever, kwargs={"sslopt": {"cert_reqs": ssl.CERT_NONE}},
                                  name="socket")
+            self.thread.daemon = True
             self.thread.start()
         except:
             self.ws = None
