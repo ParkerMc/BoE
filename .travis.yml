@@ -21,7 +21,6 @@ before_install:
   - make -j 4 &> /dev/null
   - sudo make install &> /dev/null
   - cd ../BOE
-  - ./setup-pip.sh
 script:
   - cd Client-Python
   - python Test.py
