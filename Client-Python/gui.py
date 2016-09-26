@@ -41,7 +41,9 @@ class Main(QtGui.QMainWindow, main_class):
         if self.text.text() == "quit":
             self.socket.disconnect()
         elif self.text.text() != "":
-            self.socket.send(5, str(self.text.text()))
+            self.socket.send(5, str(
+                self.text.text().replace("&", "&amp;").replace('"', "&quot;").replace("<", "&lt;").replace(">",
+                                                                                                           "&gt;")))
             self.text.setText("")
 
     def closeEvent(self, event):

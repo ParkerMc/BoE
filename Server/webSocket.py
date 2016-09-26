@@ -25,18 +25,18 @@ class History:
         pass
 
     @staticmethod
-    def load():
+    def load(force_load):
         filename = "chat/Main/" + str(datetime.date.today()) + ".chat"
         global ftext
         global Cfile
         ftext = []  # Reset array
-        if path.isfile(filename):  # If it exists add the text to array
+        if path.isfile(filename) and force_load:  # If it exists add the text to array
             Cfile = open(filename, "r")  # Open file
             ftext = Cfile.readlines()  # Read lines to array
             Cfile.close()  # Close the file
             Cfile = open(filename, "a")  # Opens that file in write mode
 
-        else:  # If file dose not exist make it
+        elif not path.isfile(filename):  # If file dose not exist make it
             Cfile = open(filename, "w")  # open file
 
     @staticmethod
@@ -50,7 +50,8 @@ class History:
             Cfile = open(filename, "w")  # Open file
 
         ftext.append(text + "\n")  # Add text to string
-        Cfile.write(text + "\n")  # Add text to file
+        Cfile.write(text + "\n")  # Add t
+        # ext to file
 
 
 class User:
@@ -96,6 +97,7 @@ class Chat(WebSocket):
             client.send(message)
 
     def afterLogin(self):
+        History.load(False)
         self.send(pack(">i", 4) + ("".join(ftext)))
         clients.append(self)
         self.connectionMsg("Connected")
@@ -166,7 +168,7 @@ def start():
     print "loading users..."
     User.loadusers()
     print "loading history..."
-    History.load()
+    History.load(True)
     server = SSLWebSocketServer(settings.host, settings.port, Chat, "ssl.pem", "ssl.pem")
     print "starting server..."
     server.serveforever()
