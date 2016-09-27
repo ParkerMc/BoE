@@ -45,6 +45,11 @@ class ServerList(QtGui.QDialog, serverList_class):
             self.items[i] = QtGui.QTreeWidgetItem((i, "", ""))
             self.serversL.addTopLevelItems([self.items[i]])
 
+    def runInMain(self):
+        for command, args in self.thread2.commands:
+            command(*args)
+            self.thread2.commands.remove((command, args))
+
     def cancel(self):
         self.close()
 
