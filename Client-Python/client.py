@@ -1,8 +1,11 @@
 #!/usr/bin/python2
-import sys
 from PyQt4 import QtGui
 
+import error
 import gui
+import sys
+
+sys.excepthook = error.excepthook
 
 if __name__ == "__main__":
     # if "-t" in sys.argv: chat.bash()
