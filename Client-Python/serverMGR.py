@@ -51,13 +51,10 @@ class Socket(QObject):
         self.messages[int(pid)].append(message)
         self.newMsg.emit()
 
-    def waitTillMessage(self, stop=None, *pid):
+    def waitTillMessage(self, *pid):
         ids, messages = self.getMessages(*pid)
         while len(messages) == 0:
             ids, messages = self.getMessages(*pid)
-            if stop is not None:
-                if not stop.wait(1):
-                    return None, None
         return ids, messages
 
     def getMessages(self, *pid):
