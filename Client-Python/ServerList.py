@@ -3,7 +3,6 @@ from PyQt4 import QtGui, uic
 from AddServer import AddServer
 from CreateUser import CreateUser
 from Login import Login
-from ThreadMan import ThreadMan
 
 serverList_class = uic.loadUiType("ui/serverList.ui")[0]
 
@@ -13,7 +12,6 @@ class ServerList(QtGui.QDialog, serverList_class):
         QtGui.QDialog.__init__(self, parent)  # Run gui init
         self.setupUi(self)  # Setup Ui
         # Defining variables
-        self.thread2 = ThreadMan()
         self.socket = parent.socket
         self.addServer = None
         self.login = None
@@ -54,13 +52,12 @@ class ServerList(QtGui.QDialog, serverList_class):
         self.close()
 
     def connectToServer(self):
-        stopT = None
         if len(self.serversL.selectedItems()) > 0:  # If item is selected
             key = str(self.serversL.selectedItems()[0].text(0))  # Get the key
             self.socket.connect(str(self.servers[key][0]), str(self.servers[key][1]))  # Try to connect
-            self.socket.waitTillMessage(stopT, 0)
+            self.socket.waitTillMessage(0)
             self.socket.send(0, str(self.servers[key][2]))
-            ids, messages = self.socket.waitTillMessage(stopT, 3, 1)
+            ids, messages = self.socket.waitTillMessage(3, 1)
             if ids is None:
                 return
             elif ids[0] == 1:
@@ -69,14 +66,14 @@ class ServerList(QtGui.QDialog, serverList_class):
                     self.login.exec_()  # Run GUI
                     if self.login.tryPass:
                         self.socket.send(0, self.login.username)
-                        self.socket.waitTillMessage(stopT, 1)
+                        self.socket.waitTillMessage(1)
                         self.socket.send(1, self.login.password)
-                        ids, messages = self.socket.waitTillMessage(stopT, 1)
+                        ids, messages = self.socket.waitTillMessage(1)
                         if ids is None:
                             return
                         elif messages[0] == "Correct":
                             self.close()
-                            ids, messages = self.socket.waitTillMessage(stopT, 4)
+                            ids, messages = self.socket.waitTillMessage(4)
                             for i in messages:
                                 self.parent().chatBox.append(str(i))
                             break
@@ -95,12 +92,12 @@ class ServerList(QtGui.QDialog, serverList_class):
                         self.login.exec_()  # Run GUI
                         if self.login.tryPass:
                             self.socket.send(0, self.login.username)
-                            self.socket.waitTillMessage(stopT, 3)
+                            self.socket.waitTillMessage(3)
                             self.close()
                             self.socket.send(3, "y")
-                            self.socket.waitTillMessage(stopT, 1)
+                            self.socket.waitTillMessage(1)
                             self.socket.send(1, self.login.password)
-                            ids, messages = self.socket.waitTillMessage(stopT, 4)
+                            ids, messages = self.socket.waitTillMessage(4)
                             if ids is None:
                                 return
                             for i in messages:
