@@ -62,6 +62,10 @@ class User:
     def loadusers():
         global users
         users = []  # reset array
+        if not path.isfile("users.csv"):
+            f = open("users.csv","w")
+            f.write("username,password,level,icon")
+            f.close()
         f = open("users.csv", "r")  # open file
         ft = f.readlines()  # readlines
         f.close()  # close file
