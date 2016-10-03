@@ -1,11 +1,16 @@
 from os import path
 
-from PyQt4 import QtGui, uic
+from PyQt4 import QtGui, uic, QtWebKit
+from toHtml import toHtml
 
 from ServerList import ServerList
 from serverMGR import Socket
 
 main_class = uic.loadUiType("ui/main.ui")[0]
+
+
+def appendWeb(objectWeb, text):
+    objectWeb.setHtml(objectWeb.page().mainFrame().toHtml() + text)
 
 
 class Main(QtGui.QMainWindow, main_class):
@@ -31,11 +36,12 @@ class Main(QtGui.QMainWindow, main_class):
         self.socket.newMsg.connect(self.chatUpdate)
         self.sendB.clicked.connect(self.send)
         self.text.returnPressed.connect(self.send)
+        self.chatBox.setHtml('<style>* {font-size:14px} code {border-radius: 4px;border: 1px solid;font-size: 14px;font-weight: 600;vertical-align: middle;word-wrap: break-word;text-align: left;white-space: pre-wrap;unicode-bidi: embed;direction: ltr;display: inline;padding: 0 .5em;margin: 0 .1em;line-height: 14px;font-family: "Source Code Pro", Monaco, monospace, Courier, "Lucida Console";background-color: #f8f8f8;border-color: #ccc;color: #333}</style>')
 
     def chatUpdate(self):
-        ids, messages = self.socket.getMessages(5)
+        ids, messages = self.socket.getMessages(4, 5)
         for i in messages:
-            self.chatBox.append(str(i))
+            appendWeb(self.chatBox, toHtml(str(i)))
 
     def send(self):
         if self.text.text() == "quit":

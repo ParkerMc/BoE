@@ -73,9 +73,6 @@ class ServerList(QtGui.QDialog, serverList_class):
                             return
                         elif messages[0] == "Correct":
                             self.close()
-                            ids, messages = self.socket.waitTillMessage(4)
-                            for i in messages:
-                                self.parent().chatBox.append(str(i))
                             break
                         else:
                             msgbox = QtGui.QMessageBox(self)
@@ -97,11 +94,6 @@ class ServerList(QtGui.QDialog, serverList_class):
                             self.socket.send(3, "y")
                             self.socket.waitTillMessage(1)
                             self.socket.send(1, self.login.password)
-                            ids, messages = self.socket.waitTillMessage(4)
-                            if ids is None:
-                                return
-                            for i in messages:
-                                self.parent().chatBox.append(str(i))
                             break
 
     def add(self):
