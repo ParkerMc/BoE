@@ -43,11 +43,8 @@ class Socket(QObject):
         self.ws.send(str(pack(">i", pid)) + msg)
 
     def on_message(self, ws, message):
-        print message
         pid = unpack(">i", message[:4])[0]
-        print pid
         message = message[4:]
-        print message
         self.messages[int(pid)].append(message)
         self.newMsg.emit()
 
