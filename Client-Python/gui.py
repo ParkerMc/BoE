@@ -1,6 +1,9 @@
+import webbrowser
 from os import path
 
-from PyQt4 import QtGui, uic, QtWebKit
+from PyQt4 import QtGui, uic, QtCore, QtWebKit
+from threading import Thread
+
 from toHtml import toHtml
 
 from ServerList import ServerList
@@ -9,8 +12,14 @@ from serverMGR import Socket
 main_class = uic.loadUiType("ui/main.ui")[0]
 
 
+
 def appendWeb(objectWeb, text):
+    pos = objectWeb.page().mainFrame().scrollPosition()
+    print objectWeb.page().mainFrame().toHtml()
     objectWeb.setHtml(objectWeb.page().mainFrame().toHtml() + text)
+    objectWeb.page().mainFrame().setScrollPosition(pos)
+    run = RunOnPython()
+    objectWeb.page().mainFrame().addToJavaScriptWindowObject('RunOnPython', run)
 
 
 class Main(QtGui.QMainWindow, main_class):
@@ -36,7 +45,10 @@ class Main(QtGui.QMainWindow, main_class):
         self.socket.newMsg.connect(self.chatUpdate)
         self.sendB.clicked.connect(self.send)
         self.text.returnPressed.connect(self.send)
-        self.chatBox.setHtml('<style>* {font-size:14px} code {border-radius: 4px;border: 1px solid;font-size: 14px;font-weight: 600;vertical-align: middle;word-wrap: break-word;text-align: left;white-space: pre-wrap;unicode-bidi: embed;direction: ltr;display: inline;padding: 0 .5em;margin: 0 .1em;line-height: 14px;font-family: "Source Code Pro", Monaco, monospace, Courier, "Lucida Console";background-color: #f8f8f8;border-color: #ccc;color: #333}</style>')
+        self.chatBox.setPage(WebPage())
+        self.chatBox.setHtml('<style>* {font-size:14px} code {border-radius: 4px;border: 1px solid;display: inline;padding: 0 .5em;margin: 0 .1em;line-height: 14px;background-color: #f8f8f8;border-color: #ccc;color: #333}</style>')
+        self.RunOnPython = RunOnPython()
+        self.chatBox.page().mainFrame().addToJavaScriptWindowObject('RunOnPython', self.RunOnPython)
 
     def chatUpdate(self):
         ids, messages = self.socket.getMessages(4, 5)
@@ -58,3 +70,18 @@ class Main(QtGui.QMainWindow, main_class):
     def connectToServer(self):
         self.serverList = ServerList(self)  # Load server list
         self.serverList.show()  # Show server list
+
+
+class RunOnPython(QtCore.QObject):
+    def __init__(self, parent=None):
+        super(RunOnPython, self).__init__(parent)
+
+    @QtCore.pyqtSlot(str)
+    def openUrl(self, url):
+        thread = Thread(target=webbrowser.open, args=[url], name="web")
+        thread.start()
+
+
+class WebPage(QtWebKit.QWebPage):
+    def javaScriptConsoleMessage(self, msg, line, source):
+        print '%s line %d: %s' % (source, line, msg)
