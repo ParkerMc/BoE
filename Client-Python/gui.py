@@ -12,16 +12,6 @@ from serverMGR import Socket
 main_class = uic.loadUiType("ui/main.ui")[0]
 
 
-
-def appendWeb(objectWeb, text):
-    pos = objectWeb.page().mainFrame().scrollPosition()
-    print objectWeb.page().mainFrame().toHtml()
-    objectWeb.setHtml(objectWeb.page().mainFrame().toHtml() + text)
-    objectWeb.page().mainFrame().setScrollPosition(pos)
-    run = RunOnPython()
-    objectWeb.page().mainFrame().addToJavaScriptWindowObject('RunOnPython', run)
-
-
 class Main(QtGui.QMainWindow, main_class):
     def __init__(self, parent=None):
         QtGui.QMainWindow.__init__(self, parent)  # Run gui init
@@ -50,10 +40,18 @@ class Main(QtGui.QMainWindow, main_class):
         self.RunOnPython = RunOnPython()
         self.chatBox.page().mainFrame().addToJavaScriptWindowObject('RunOnPython', self.RunOnPython)
 
+    def appendWeb(self, objectWeb, text):
+        pos = objectWeb.page().mainFrame().scrollPosition()
+        print objectWeb.page().mainFrame().toHtml()
+        objectWeb.setHtml(objectWeb.page().mainFrame().toHtml() + text)
+        objectWeb.page().mainFrame().setScrollPosition(pos)
+        run = RunOnPython()
+        objectWeb.page().mainFrame().addToJavaScriptWindowObject('RunOnPython', self)
+        
     def chatUpdate(self):
         ids, messages = self.socket.getMessages(4, 5)
         for i in messages:
-            appendWeb(self.chatBox, toHtml(str(i)))
+            self.appendWeb(self.chatBox, toHtml(str(i)))
 
     def send(self):
         if self.text.text() == "quit":
@@ -70,6 +68,11 @@ class Main(QtGui.QMainWindow, main_class):
     def connectToServer(self):
         self.serverList = ServerList(self)  # Load server list
         self.serverList.show()  # Show server list
+
+    @QtCore.pyqtSlot(str)
+    def openUrl(self, url):
+        thread = Thread(target=webbrowser.open, args=[url], name="web")
+        thread.start()
 
 
 class RunOnPython(QtCore.QObject):
