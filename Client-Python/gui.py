@@ -35,17 +35,14 @@ class Main(QtGui.QMainWindow, main_class):
         self.socket.newMsg.connect(self.chatUpdate)
         self.sendB.clicked.connect(self.send)
         self.text.returnPressed.connect(self.send)
-        self.chatBox.setPage(WebPage())
         self.chatBox.setHtml('<style>* {font-size:14px} code {border-radius: 4px;border: 1px solid;display: inline;padding: 0 .5em;margin: 0 .1em;line-height: 14px;background-color: #f8f8f8;border-color: #ccc;color: #333}</style>')
-        self.RunOnPython = RunOnPython()
-        self.chatBox.page().mainFrame().addToJavaScriptWindowObject('RunOnPython', self.RunOnPython)
+        self.chatBox.page().mainFrame().addToJavaScriptWindowObject('RunOnPython', self)
 
     def appendWeb(self, objectWeb, text):
         pos = objectWeb.page().mainFrame().scrollPosition()
         print objectWeb.page().mainFrame().toHtml()
         objectWeb.setHtml(objectWeb.page().mainFrame().toHtml() + text)
         objectWeb.page().mainFrame().setScrollPosition(pos)
-        run = RunOnPython()
         objectWeb.page().mainFrame().addToJavaScriptWindowObject('RunOnPython', self)
         
     def chatUpdate(self):
@@ -73,18 +70,3 @@ class Main(QtGui.QMainWindow, main_class):
     def openUrl(self, url):
         thread = Thread(target=webbrowser.open, args=[url], name="web")
         thread.start()
-
-
-class RunOnPython(QtCore.QObject):
-    def __init__(self, parent=None):
-        super(RunOnPython, self).__init__(parent)
-
-    @QtCore.pyqtSlot(str)
-    def openUrl(self, url):
-        thread = Thread(target=webbrowser.open, args=[url], name="web")
-        thread.start()
-
-
-class WebPage(QtWebKit.QWebPage):
-    def javaScriptConsoleMessage(self, msg, line, source):
-        print '%s line %d: %s' % (source, line, msg)
