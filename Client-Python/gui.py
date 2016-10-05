@@ -1,4 +1,5 @@
 import webbrowser
+import re
 from os import path
 import sys
 import error
@@ -50,11 +51,19 @@ class Main(QtGui.QMainWindow, main_class):
             pos.setY(objectWeb.page().mainFrame().scrollBarMaximum(Qt.Qt.Vertical))
         objectWeb.page().mainFrame().setScrollPosition(pos)
         objectWeb.page().mainFrame().addToJavaScriptWindowObject('RunOnPython', self)
-        
+
+    def prependWeb(self, objectWeb, text):
+        objectWeb.setHtml(re.sub("(.*?)<body>(.*?)</body>(.*?)", r"\1<body>" + text + '<a id="goto"></a>' + r"\2</body>\3", str(objectWeb.page().mainFrame().toHtml()).replace('<a id="goto"></a>', "")))
+        objectWeb.page().mainFrame().addToJavaScriptWindowObject('RunOnPython', self)
+        objectWeb.page().mainFrame().evaluateJavaScript("document.getElementById('goto').scrollIntoView();")
+
     def chatUpdate(self):
         ids, messages = self.socket.getMessages(4, 5)
-        for i in messages:
-            self.appendWeb(self.chatBox, toHtml(str(i)))
+        for i, j in zip(messages, ids):
+            if i == 4:
+                self.prependWeb(self.chatBox, toHtml(str(i)))
+            else:
+                self.appendWeb(self.chatBox, toHtml(str(i)))
 
     def send(self):
         if self.text.text() == "quit":
