@@ -14,6 +14,5 @@ if __name__ == "__main__":
     # else:
     app = QtGui.QApplication(sys.argv)
     mainWindow = gui.Main()
-    sys.excepthook = error.excepthook2
     mainWindow.show()
     app.exec_()

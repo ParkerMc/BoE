@@ -1,7 +1,8 @@
 import webbrowser
 from os import path
-
-from PyQt4 import QtGui, uic, QtCore, QtWebKit
+import sys
+import error
+from PyQt4 import QtGui, uic, QtCore, Qt
 from threading import Thread
 
 from toHtml import toHtml
@@ -10,7 +11,6 @@ from ServerList import ServerList
 from serverMGR import Socket
 
 main_class = uic.loadUiType("ui/main.ui")[0]
-
 
 class Main(QtGui.QMainWindow, main_class):
     def __init__(self, parent=None):
@@ -37,11 +37,17 @@ class Main(QtGui.QMainWindow, main_class):
         self.text.returnPressed.connect(self.send)
         self.chatBox.setHtml('<style>* {font-size:14px} code {border-radius: 4px;border: 1px solid;display: inline;padding: 0 .5em;margin: 0 .1em;line-height: 14px;background-color: #f8f8f8;border-color: #ccc;color: #333}</style>')
         self.chatBox.page().mainFrame().addToJavaScriptWindowObject('RunOnPython', self)
+        sys.excepthook = error.excepthook2
 
     def appendWeb(self, objectWeb, text):
         pos = objectWeb.page().mainFrame().scrollPosition()
-        print objectWeb.page().mainFrame().toHtml()
+        if objectWeb.page().mainFrame().scrollBarMaximum(Qt.Qt.Vertical) == pos.y():
+            maxScroll = True
+        else:
+            maxScroll = False
         objectWeb.setHtml(objectWeb.page().mainFrame().toHtml() + text)
+        if maxScroll:
+            pos.setY(objectWeb.page().mainFrame().scrollBarMaximum(Qt.Qt.Vertical))
         objectWeb.page().mainFrame().setScrollPosition(pos)
         objectWeb.page().mainFrame().addToJavaScriptWindowObject('RunOnPython', self)
         
