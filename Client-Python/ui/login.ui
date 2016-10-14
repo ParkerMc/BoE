@@ -25,6 +25,10 @@
   <property name="windowTitle">
    <string>BOE</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>assets/B.o.E..png</normaloff>assets/B.o.E..png</iconset>
+  </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="1" column="0">
     <widget class="QLabel" name="label_2">
