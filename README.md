@@ -4,6 +4,9 @@
 
 A chat platform that intends to look at other chat programs and take only the "Best of Everything".
 
+[<img src="https://raw.githubusercontent.com/ParkerMc/BOE/master/Client-Python/assets/B.o.E..png" alt="Icon" style="width: 200px;"/>](https://travis-ci.org/ParkerMc/BOE) 
+<sup><sup><sup><sup>Icon by angelgal246.</sup></sup></sup></sup>
+
 [Mods](https://github.com/ParkerMc/BoE-Mods)
 
 For the client on windows you need run setup-Windows.bat and install [PyQt4.](https://sourceforge.net/projects/pyqt/files/PyQt4/PyQt-4.11.4/)
@@ -14,3 +17,5 @@ Must have a ssl certificate run command and put ssl.pem in to the server folder.
 `openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ssl.pem -out ssl.pem`
 Or for a non self-signed 
 `letsencrypt certonly --standalone -d domain.com`
+
+
