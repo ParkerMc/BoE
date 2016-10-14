@@ -4,7 +4,7 @@
 
 A chat platform that intends to look at other chat programs and take only the "Best of Everything".
 
-[![Icon](https://raw.githubusercontent.com/ParkerMc/BOE/master/Client-Python/assets/B.o.E..png | width=100")](https://github.com/ParkerMc/BOE) 
+[![Icon](https://raw.githubusercontent.com/ParkerMc/BOE/master/Client-Python/assets/B.o.E..png | width=100)](https://github.com/ParkerMc/BOE) 
 
 <sup><sup><sup>Icon by angelgal246.</sup></sup></sup>
 
