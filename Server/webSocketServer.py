@@ -16,6 +16,7 @@ from BaseHTTPServer import BaseHTTPRequestHandler
 from StringIO import StringIO
 from collections import deque
 from select import select
+from history import History
 
 import modloader
 
@@ -463,8 +464,9 @@ class WebSocket(object):
                 self.index += 1
 
 
-class SimpleWebSocketServer(object):
+class SimpleWebSocketServer(History):
     def __init__(self, host, port, websocketclass, selectInterval=0.1):
+        History.__init__(self)
         self.mods = modloader.ModLoader()
         self.websocketclass = websocketclass
         self.serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -543,10 +545,11 @@ class SimpleWebSocketServer(object):
                     if ready not in self.connections:
                         continue
                     client = self.connections[ready]
-                    try:
-                        client.handleData()
-                    except:
-                        self.closeClient(client, ready)
+#                    try:
+                    client.handleData()
+#                    except Exception, e:
+#                        raise e
+#                        self.closeClient(client, ready)
 
             for failed in xList:
                 if failed == self.serversocket:

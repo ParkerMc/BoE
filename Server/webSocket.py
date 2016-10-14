@@ -9,13 +9,9 @@ from webSocketServer import SSLWebSocketServer, WebSocket
 usersOn = []
 clients = []
 users = []
-Cfile = None
-ftext = []
 
 global clients
 global users
-global Cfile
-global ftext
 global users
 
 
@@ -28,7 +24,7 @@ class User:
         global users
         users = []  # reset array
         if not path.isfile("users.csv"):
-            f = open("users.csv","w")
+            f = open("users.csv", "w")
             f.write("username,password,level,icon")
             f.close()
         f = open("users.csv", "r")  # open file
@@ -66,8 +62,8 @@ class Chat(WebSocket):
             client.send(message)
 
     def afterLogin(self):
-        History.load(False)
-        self.send(pack(">i", 4) + ("".join(ftext)))
+        last, history = self.server.getLast50()
+        self.send(pack(">i", 4) + last + "<" + history)
         clients.append(self)
         self.connectionMsg("Connected")
         self.send(pack(">i", 5) + settings.welcomeMsg + "\n")
@@ -78,7 +74,7 @@ class Chat(WebSocket):
         if self.data == "quit":
             self.close()
         elif self.loggedin and self.pId == pack(">i", 5):
-            History.add(self.username + ' : ' + self.data)
+            self.server.add(self.username + ' : ' + self.data)
             self.sendall(pack(">i", 5) + self.username + ' : ' + self.data)
         elif self.pId == pack(">i", 0):
             found = False
@@ -136,8 +132,6 @@ class Chat(WebSocket):
 def start():
     print "loading users..."
     User.loadusers()
-    print "loading history..."
-    History.load(True)
     server = SSLWebSocketServer(settings.host, settings.port, Chat, "ssl.pem", "ssl.pem")
     print "starting server..."
     server.serveforever()
