@@ -2,9 +2,6 @@ language: python
 sudo: required
 python:
   - "2.7"
-addons:
-    code_climate:
-        repo_token: ecea6376557adb6628bbcb5d302a5da95ae37126fe939b0ea8d2757f8da0eefa
 before_install:
   - cd ..
   - curl -L -O http://sourceforge.net/projects/pyqt/files/sip/sip-4.14.1/sip-4.14.1.tar.gz
@@ -21,6 +18,8 @@ before_install:
   - make -j 4 &> /dev/null
   - sudo make install &> /dev/null
   - cd ../BOE
+  - pip install coverage
+  - pip install codeclimate-test-reporter
 script:
   - cd Client-Python
   - python Test.py
@@ -28,4 +27,7 @@ script:
   - python Test.py
   - cd ..
 after_success:
-- nosetests
+  - COVERAGE_FILE=.coverage_1 coverage run Server/Test.py
+  - COVERAGE_FILE=.coverage_2 coverage run Client-Python/Test.py
+  - coverage combine
+  - codeclimate-test-reporter --file .coverage
