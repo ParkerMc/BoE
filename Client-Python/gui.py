@@ -13,6 +13,7 @@ from serverMGR import Socket
 
 main_class = uic.loadUiType("ui/main.ui")[0]
 
+
 class Main(QtGui.QMainWindow, main_class):
     def __init__(self, parent=None):
         QtGui.QMainWindow.__init__(self, parent)  # Run gui init
@@ -36,7 +37,8 @@ class Main(QtGui.QMainWindow, main_class):
         self.socket.newMsg.connect(self.chatUpdate)
         self.sendB.clicked.connect(self.send)
         self.text.returnPressed.connect(self.send)
-        self.chatBox.setHtml('<style>* {font-size:14px} code {border-radius: 4px;border: 1px solid;display: inline;padding: 0 .5em;margin: 0 .1em;line-height: 14px;background-color: #f8f8f8;border-color: #ccc;color: #333}</style>')
+        self.chatBox.setHtml(
+            '<style>* {font-size:14px} code {border-radius: 4px;border: 1px solid;display: inline;padding: 0 .5em;margin: 0 .1em;line-height: 14px;background-color: #f8f8f8;border-color: #ccc;color: #333}</style>')
         self.chatBox.page().mainFrame().addToJavaScriptWindowObject('RunOnPython', self)
         sys.excepthook = error.excepthook2
 
@@ -53,15 +55,17 @@ class Main(QtGui.QMainWindow, main_class):
         objectWeb.page().mainFrame().addToJavaScriptWindowObject('RunOnPython', self)
 
     def prependWeb(self, objectWeb, text):
-        objectWeb.setHtml(re.sub("(.*?)<body>(.*?)</body>(.*?)", r"\1<body>" + text + '<a id="goto"></a>' + r"\2</body>\3", str(objectWeb.page().mainFrame().toHtml()).replace('<a id="goto"></a>', "")))
+        objectWeb.setHtml(
+            re.sub("(.*?)<body>(.*?)</body>(.*?)", r"\1<body>" + text + '<a id="goto"></a>' + r"\2</body>\3",
+                   str(objectWeb.page().mainFrame().toHtml()).replace('<a id="goto"></a>', "")))
         objectWeb.page().mainFrame().addToJavaScriptWindowObject('RunOnPython', self)
         objectWeb.page().mainFrame().evaluateJavaScript("document.getElementById('goto').scrollIntoView();")
 
     def chatUpdate(self):
         ids, messages = self.socket.getMessages(4, 5)
         for i, j in zip(messages, ids):
-            if i == 4:
-                self.prependWeb(self.chatBox, toHtml(str(i)))
+            if j == 4:
+                self.prependWeb(self.chatBox, toHtml((str(i).split("<")[1])))
             else:
                 self.appendWeb(self.chatBox, toHtml(str(i)))
 

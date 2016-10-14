@@ -39,6 +39,7 @@ def excepthook(excType, excValue, tracebackobj):
 class error(QtGui.QMainWindow, error_class):
     def __init__(self, msg, parent=None):
         QtGui.QDialog.__init__(self, parent)
+        super(error, self).__init__()
         self.setupUi(self)
         self.msg = msg
         self.emsg.setText(msg)
@@ -48,7 +49,7 @@ class error(QtGui.QMainWindow, error_class):
         try:
             urllib.urlretrieve(
                 """https://parkermc.ddns.net/boebugs.php?msg=%s""" % (
-                "From: " + self.email.text() + "\n\n" + self.de.toPlainText() + "\n" + self.msg), "temp.html")
+                    "From: " + self.email.text() + "\n\n" + self.de.toPlainText() + "\n" + self.msg), "temp.html")
             errorbox = QtGui.QMessageBox(self)
             errorbox.setWindowTitle("Sent")
             errorbox.setText("Email sent thank you :)")
@@ -96,7 +97,7 @@ class error2(QtGui.QDialog, error_class):
         try:
             urllib.urlretrieve(
                 """https://parkermc.ddns.net/boebugs.php?msg=%s""" % (
-                "From: " + self.email.text() + "\n\n" + self.de.toPlainText() + "\n" + self.msg), "temp.html")
+                    "From: " + self.email.text() + "\n\n" + self.de.toPlainText() + "\n" + self.msg), "temp.html")
             errorbox = QtGui.QMessageBox(self)
             errorbox.setWindowTitle("Sent")
             errorbox.setText("Email sent thank you :)")
@@ -106,4 +107,3 @@ class error2(QtGui.QDialog, error_class):
             errorbox.setWindowTitle("Error")
             errorbox.setText("Can not send email.")
             errorbox.exec_()
-
