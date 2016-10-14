@@ -4,8 +4,9 @@
 
 A chat platform that intends to look at other chat programs and take only the "Best of Everything".
 
-[<img src="https://raw.githubusercontent.com/ParkerMc/BOE/master/Client-Python/assets/B.o.E..png" alt="Icon" style="width: 200px;"/>](https://travis-ci.org/ParkerMc/BOE) 
-<sup><sup><sup><sup>Icon by angelgal246.</sup></sup></sup></sup>
+[![Icon](https://raw.githubusercontent.com/ParkerMc/BOE/master/Client-Python/assets/B.o.E..png | width=100")](https://github.com/ParkerMc/BOE) 
+
+<sup><sup><sup>Icon by angelgal246.</sup></sup></sup>
 
 [Mods](https://github.com/ParkerMc/BoE-Mods)
 
