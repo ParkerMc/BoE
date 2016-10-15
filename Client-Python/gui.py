@@ -1,15 +1,16 @@
-import webbrowser
 import re
-from os import path
 import sys
-import error
-from PyQt4 import QtGui, uic, QtCore, Qt
+import webbrowser
+from os import path
 from threading import Thread
 
-from toHtml import toHtml
+from PyQt4 import QtGui, uic, QtCore, Qt
+from PyQt4.QtWebKit import QWebSettings
 
+import error
 from ServerList import ServerList
 from serverMGR import Socket
+from toHtml import toHtml
 
 main_class = uic.loadUiType("ui/main.ui")[0]
 
@@ -37,11 +38,22 @@ class Main(QtGui.QMainWindow, main_class):
         self.socket.newMsg.connect(self.chatUpdate)
         self.sendB.clicked.connect(self.send)
         self.text.returnPressed.connect(self.send)
-        self.chatBox.setHtml(
-            '<style>* {font-size:14px} code {border-radius: 4px;border: 1px solid;display: inline;padding: 0 .5em;'
-            'margin: 0 .1em;line-height: 14px;background-color: #f8f8f8;border-color: #ccc;color: #333}</style>')
-        self.chatBox.page().mainFrame().addToJavaScriptWindowObject('RunOnPython', self)
+        self.resetWeb()
+        self.last = None
         sys.excepthook = error.excepthook2
+
+    def resetWeb(self):
+        self.chatBox.setHtml(
+            '<style>'
+            '* {font-size:14px}'
+            'code {border-radius: 4px;border: 1px solid;display: inline;padding: 0 .5em;margin: 0 .1em;'
+            'line-height: 14px;background-color: #f8f8f8;border-color: #ccc;color: #333}'
+            '</style>'
+            '<script>'
+            'window.onscroll = function() {RunOnPython.loadMore()};'
+            '</script>')
+        self.chatBox.page().mainFrame().addToJavaScriptWindowObject('RunOnPython', self)
+        self.chatBox.page().settings().setAttribute(QWebSettings.DeveloperExtrasEnabled, True)
 
     def appendWeb(self, object_web, text):
         pos = object_web.page().mainFrame().scrollPosition()
@@ -66,6 +78,7 @@ class Main(QtGui.QMainWindow, main_class):
         ids, messages = self.socket.getMessages(4, 5)
         for i, j in zip(messages, ids):
             if j == 4:
+                self.last = str(i).split("<")[0]
                 self.prependWeb(self.chatBox, toHtml((str(i).split("<")[1])))
             else:
                 self.appendWeb(self.chatBox, toHtml(str(i)))
@@ -91,3 +104,8 @@ class Main(QtGui.QMainWindow, main_class):
     def openUrl(self, url):
         thread = Thread(target=webbrowser.open, args=[url], name="web")
         thread.start()
+
+    @QtCore.pyqtSlot()
+    def loadMore(self):
+        if str(self.last) != "all" and self.chatBox.page().mainFrame().scrollPosition().y() < 30:
+            self.socket.send(4, self.last)
