@@ -21,16 +21,13 @@ class Socket(QObject):
             self.messages.append([])
 
     def connect(self, server, port):
-        try:
-            websocket.enableTrace(True)
-            self.ws = websocket.WebSocketApp("wss://" + server + ":" + port, on_message=self.on_message,
-                                             on_error=self.on_error, on_close=self.on_close)
-            self.thread = Thread(target=self.ws.run_forever, kwargs={"sslopt": {"cert_reqs": ssl.CERT_NONE}},
-                                 name="socket")
-            self.thread.daemon = True
-            self.thread.start()
-        except:
-            self.ws = None
+        websocket.enableTrace(True)
+        self.ws = websocket.WebSocketApp("wss://" + server + ":" + port, on_message=self.on_message,
+                                         on_error=self.on_error, on_close=self.on_close)
+        self.thread = Thread(target=self.ws.run_forever, kwargs={"sslopt": {"cert_reqs": ssl.CERT_NONE}},
+                             name="socket")
+        self.thread.daemon = True
+        self.thread.start()
 
     def disconnect(self):
         if self.ws is not None:

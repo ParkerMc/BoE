@@ -6,13 +6,9 @@ from passlib.hash import sha256_crypt
 import settings
 from webSocketServer import SSLWebSocketServer, WebSocket
 
-global clients
-global users
-global users
-
 usersOn = []
-clients = []
-users = []
+CLIENTS = []
+USERS = []
 
 
 class User(object):
@@ -21,8 +17,7 @@ class User(object):
 
     @staticmethod
     def loadusers():
-        global users
-        users = []  # reset array
+        USERS = []  # reset array
         if not path.isfile("users.csv"):
             f = open("users.csv", "w")
             f.write("username,password,level,icon")
@@ -33,14 +28,14 @@ class User(object):
         for i in ft:  # loop though lines
             j = i.replace("\n", "").split(",")  # remove EOL and split
             if len(j) == 4:
-                users.append((j[0], j[1], j[2], j[3]))  # add data to array
+                USERS.append((j[0], j[1], j[2], j[3]))  # add data to array
         del ft  # delate ft
 
     @staticmethod
     def makeUser(username, passwd, level, icon):  # make user
-        users.append((username, passwd, level, icon))  # add to user array
+        USERS.append((username, passwd, level, icon))  # add to user array
         f = open("users.csv", "w")  # open file to save
-        for i, j, k, l in users:
+        for i, j, k, l in USERS:
             f.write(i + "," + j + "," + str(k) + "," + l + "\n")  # sve to file
         f.close()  # close the file
 
@@ -58,13 +53,13 @@ class Chat(WebSocket):
 
     @staticmethod
     def sendall(message):
-        for client in clients:
+        for client in CLIENTS:
             client.send(message)
 
     def afterLogin(self):
         last, history = self.server.getLast50()
         self.send(pack(">i", 4) + last + "<" + history)
-        clients.append(self)
+        CLIENTS.append(self)
         self.connectionMsg("Connected")
         self.send(pack(">i", 5) + settings.welcomeMsg + "\n")
         self.loggedin = True
@@ -78,7 +73,7 @@ class Chat(WebSocket):
             self.sendall(pack(">i", 5) + self.username + ' : ' + self.data)
         elif self.pId == pack(">i", 0):
             found = False
-            for i, j, k, l in users:
+            for i, j, k, _ in USERS:
                 if i.lower() == self.data.lower():
                     found = True
                     self.hash = j
@@ -109,7 +104,7 @@ class Chat(WebSocket):
                 self.loggedin = False
                 self.connectionMsg("Disconnected")
 
-                clients.remove(self)
+                CLIENTS.remove(self)
 
         else:
             self.mods.newid(self, self.server)
@@ -123,8 +118,8 @@ class Chat(WebSocket):
         if self.loggedin:
             self.connectionMsg("Disconnected")
             try:
-                clients.remove(self)
-            except:
+                CLIENTS.remove(self)
+            except NameError:
                 pass
         print self.address, 'closed'
 

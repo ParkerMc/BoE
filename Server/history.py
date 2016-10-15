@@ -69,7 +69,7 @@ class History(object):
                     makedirs(folders)
             try:
                 self.fileObj.close()
-            except:
+            except NameError:
                 pass
             self.fileObj = open(self._fileName(), "w")
             self._updateDb()

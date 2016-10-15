@@ -134,7 +134,7 @@ class WebSocket(object):
                 if len(reason) > 0:
                     try:
                         reason = reason.decode('utf8', errors='strict')
-                    except:
+                    except Exception:
                         status = 1002
             else:
                 status = 1002
@@ -389,7 +389,7 @@ class WebSocket(object):
             if self.opcode == PING and length > 125:
                 raise Exception('ping packet is too large')
 
-            if mask == 128:
+            if mask is 128:
                 self.hasmask = True
             else:
                 self.hasmask = False
@@ -477,7 +477,6 @@ class SimpleWebSocketServer(History):
         self.connections = {}
         self.listeners = [self.serversocket]
 
-    @staticmethod
     def _decorateSocket(self, sock):
         return sock
 

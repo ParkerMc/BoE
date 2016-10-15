@@ -45,7 +45,7 @@ class Main(QtGui.QMainWindow, main_class):
 
     def appendWeb(self, object_web, text):
         pos = object_web.page().mainFrame().scrollPosition()
-        if object_web.page().mainFrame().scrollBarMaximum(Qt.Qt.Vertical) == pos.y():
+        if object_web.page().mainFrame().scrollBarMaximum(Qt.Qt.Vertical) is pos.y():
             max_scroll = True
         else:
             max_scroll = False
