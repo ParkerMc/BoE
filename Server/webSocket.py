@@ -27,11 +27,9 @@ class User(object):
         f.close()  # close file
         for i in ft:  # loop though lines
             j = i.replace("\n", "").split(",")  # remove EOL and split
-            print len(j)
             if len(j) == 4:
                 USERS.append((j[0], j[1], j[2], j[3]))  # add data to array
         del ft  # delate ft
-        print USERS
 
     @staticmethod
     def makeUser(username, passwd, level, icon):  # make user
@@ -75,9 +73,7 @@ class Chat(WebSocket):
             self.sendall(pack(">i", 5) + self.username + ' : ' + self.data)
         elif self.pId == pack(">i", 0):
             found = False
-            print USERS
             for i, j, k, _ in USERS:
-                print i.lower() + "-" + self.data.lower()
                 if i.lower() == self.data.lower():
                     found = True
                     self.hash = j
