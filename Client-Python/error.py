@@ -10,36 +10,35 @@ from PyQt4 import QtGui, uic
 error_class = uic.loadUiType("ui/error.ui")[0]
 
 
-def excepthook(excType, excValue, tracebackobj):
+def excepthook(exc_type, exc_value, tracebackobj):
     separator = '-' * 80
-    logFile = "Error.log"
-    versionInfo = "NR"
-    timeString = time.strftime("%m/%d/%Y, %H:%M:%S")
+    log_file = "Error.log"
+    version_info = "NR"
+    time_string = time.strftime("%m/%d/%Y, %H:%M:%S")
 
     tbinfofile = cStringIO.StringIO()
     traceback.print_tb(tracebackobj, None, tbinfofile)
     tbinfofile.seek(0)
     tbinfo = tbinfofile.read()
-    errmsg = '%s: \n%s' % (str(excType), str(excValue))
-    sections = [separator, timeString, separator, errmsg, separator, tbinfo, separator, "Version: " + versionInfo,
+    errmsg = '%s: \n%s' % (str(exc_type), str(exc_value))
+    sections = [separator, time_string, separator, errmsg, separator, tbinfo, separator, "Version: " + version_info,
                 "Os: " + platform.system(), "Architecture: " + platform.architecture()[0], separator]
     msg = '\n'.join(sections)
     try:
-        f = open(logFile, "w")
+        f = open(log_file, "w")
         f.write(msg)
         f.close()
     except IOError:
         pass
     app = QtGui.QApplication(sys.argv)
-    mainWindow = error(msg)
-    mainWindow.show()
+    main_window = Error(msg)
+    main_window.show()
     app.exec_()
 
 
-class error(QtGui.QMainWindow, error_class):
+class Error(QtGui.QMainWindow, error_class):
     def __init__(self, msg, parent=None):
-        QtGui.QDialog.__init__(self, parent)
-        super(error, self).__init__()
+        QtGui.QMainWindow.__init__(self, parent)
         self.setupUi(self)
         self.msg = msg
         self.emsg.setText(msg)
@@ -61,31 +60,31 @@ class error(QtGui.QMainWindow, error_class):
             errorbox.exec_()
 
 
-def excepthook2(excType, excValue, tracebackobj):
+def excepthook2(exc_type, exc_value, tracebackobj):
     separator = '-' * 80
-    logFile = "Error.log"
-    versionInfo = "NR"
-    timeString = time.strftime("%m/%d/%Y, %H:%M:%S")
+    log_file = "Error.log"
+    version_info = "NR"
+    time_string = time.strftime("%m/%d/%Y, %H:%M:%S")
 
     tbinfofile = cStringIO.StringIO()
     traceback.print_tb(tracebackobj, None, tbinfofile)
     tbinfofile.seek(0)
     tbinfo = tbinfofile.read()
-    errmsg = '%s: \n%s' % (str(excType), str(excValue))
-    sections = [separator, timeString, separator, errmsg, separator, tbinfo, separator, "Version: " + versionInfo,
+    errmsg = '%s: \n%s' % (str(exc_type), str(exc_value))
+    sections = [separator, time_string, separator, errmsg, separator, tbinfo, separator, "Version: " + version_info,
                 "Os: " + platform.system(), "Architecture: " + platform.architecture()[0], separator]
     msg = '\n'.join(sections)
     try:
-        f = open(logFile, "w")
+        f = open(log_file, "w")
         f.write(msg)
         f.close()
     except IOError:
         pass
-    mainWindow = error2(msg)
-    mainWindow.exec_()
+    main_window = Error2(msg)
+    main_window.exec_()
 
 
-class error2(QtGui.QDialog, error_class):
+class Error2(QtGui.QDialog, error_class):
     def __init__(self, msg, parent=None):
         QtGui.QDialog.__init__(self, parent)
         self.setupUi(self)

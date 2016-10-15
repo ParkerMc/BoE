@@ -48,7 +48,7 @@ class History(object):
 
     def _updateDb(self):
         self.db = []
-        for root, dirs, files in walk("chat/Main"):
+        for root, _, files in walk("chat/Main"):
             for name in files:
                 if name != "welcome.chat":
                     self.db.append(path.join(root, name))
@@ -70,7 +70,7 @@ class History(object):
             try:
                 self.fileObj.close()
             except:
-                None
+                pass
             self.fileObj = open(self._fileName(), "w")
             self._updateDb()
         elif not self.fileOpen:

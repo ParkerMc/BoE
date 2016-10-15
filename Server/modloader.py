@@ -31,7 +31,7 @@ class ModLoader:
     def message(self, client, server):
         for i in self.messageL:
             i(client, server)
-            
+
     def newid(self, client, server):
         for i in self.newidL:
             i(client, server)
@@ -42,4 +42,4 @@ class ModLoader:
 
     def Cclose(self, client, server):
         for i in self.CcloseL:
-            i(client, server)       
+            i(client, server)
