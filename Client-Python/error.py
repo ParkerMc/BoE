@@ -53,7 +53,7 @@ class Error(QtGui.QMainWindow, error_class):
             errorbox.setWindowTitle("Sent")
             errorbox.setText("Email sent thank you :)")
             errorbox.exec_()
-        except:
+        except IOError:
             errorbox = QtGui.QMessageBox(self)
             errorbox.setWindowTitle("Error")
             errorbox.setText("Can not send email.")
