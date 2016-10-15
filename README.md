@@ -1,6 +1,6 @@
 # BoE /bō/
 
-[![Build Status](https://travis-ci.org/ParkerMc/BOE.svg?branch=master)](https://travis-ci.org/ParkerMc/BOE) [![codebeat badge](https://codebeat.co/badges/26b33f7d-8ba7-4552-aab2-b7310489f9d5)](https://codebeat.co/projects/github-com-parkermc-boe) [![GPL Licence](https://badges.frapsoft.com/os/gpl/gpl.svg?v=103)](https://opensource.org/licenses/GPL-3.0/) [![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/sindresorhus/awesome)
+[![Build Status](https://travis-ci.org/ParkerMc/BOE.svg?branch=master)](https://travis-ci.org/ParkerMc/BOE) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/d92ad430e4c04741b2a563941fe89ed7)](https://www.codacy.com/app/ParkerMc/BOE?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ParkerMc/BOE&amp;utm_campaign=Badge_Grade) [![GPL Licence](https://badges.frapsoft.com/os/gpl/gpl.svg?v=103)](https://opensource.org/licenses/GPL-3.0/) [![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/sindresorhus/awesome)
 
 A chat platform that intends to look at other chat programs and take only the "Best of Everything".
 
