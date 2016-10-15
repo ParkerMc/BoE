@@ -17,7 +17,7 @@ class User(object):
 
     @staticmethod
     def loadusers():
-        USERS = []  # reset array
+        del USERS[:]  # reset array
         if not path.isfile("users.csv"):
             f = open("users.csv", "w")
             f.write("username,password,level,icon")
@@ -27,9 +27,11 @@ class User(object):
         f.close()  # close file
         for i in ft:  # loop though lines
             j = i.replace("\n", "").split(",")  # remove EOL and split
+            print len(j)
             if len(j) == 4:
                 USERS.append((j[0], j[1], j[2], j[3]))  # add data to array
         del ft  # delate ft
+        print USERS
 
     @staticmethod
     def makeUser(username, passwd, level, icon):  # make user
@@ -73,7 +75,9 @@ class Chat(WebSocket):
             self.sendall(pack(">i", 5) + self.username + ' : ' + self.data)
         elif self.pId == pack(">i", 0):
             found = False
+            print USERS
             for i, j, k, _ in USERS:
+                print i.lower() + "-" + self.data.lower()
                 if i.lower() == self.data.lower():
                     found = True
                     self.hash = j
@@ -103,9 +107,10 @@ class Chat(WebSocket):
                 self.username = ""
                 self.loggedin = False
                 self.connectionMsg("Disconnected")
-
                 CLIENTS.remove(self)
-
+        elif self.pId == pack(">i", 4):
+            last, history = self.server.get50More(self.data)
+            self.send(pack(">i", 4) + last + "<" + history)
         else:
             self.mods.newid(self, self.server)
 

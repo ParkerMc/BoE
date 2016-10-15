@@ -30,11 +30,14 @@ class Socket(QObject):
         self.thread.start()
 
     def disconnect(self):
-        if self.ws is not None:
-            self.ws.send(pack(">i", 5) + "quit")
-            sleep(.5)
-            self.ws.close()
-            self.ws = None
+        try:
+            if self.ws is not None:
+                self.ws.send(pack(">i", 5) + "quit")
+                sleep(.5)
+                self.ws.close()
+                self.ws = None
+        except websocket._exceptions.WebSocketConnectionClosedException:
+            pass
 
     def send(self, pid, msg):
         self.ws.send(str(pack(">i", pid)) + msg)

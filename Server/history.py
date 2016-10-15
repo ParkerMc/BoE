@@ -25,14 +25,14 @@ class History(object):
                     output += self.fileArray
                 if len(output) > 50:
                     last = i
-                    continue
+                    break
         return last, "".join(output)
 
     def get50More(self, last_file):
         output = []
         last = "all"
-        start = reversed(self.db).index(last_file) + 1
-        for i in reversed(self.db)[start:]:
+        start = list(reversed(self.db)).index(last_file) + 1
+        for i in list(reversed(self.db))[start:]:
             if i.strip() != "":
                 i = i.replace("\n", "")
                 if i != self._fileName() or not self.fileOpen:
@@ -43,7 +43,7 @@ class History(object):
                     output += self.fileArray
                 if len(output) > 50:
                     last = i
-                    continue
+                    break
         return last, "".join(output)
 
     def _updateDb(self):
@@ -69,7 +69,7 @@ class History(object):
                     makedirs(folders)
             try:
                 self.fileObj.close()
-            except NameError:
+            except AttributeError:
                 pass
             self.fileObj = open(self._fileName(), "w")
             self._updateDb()
