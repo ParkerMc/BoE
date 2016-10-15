@@ -17,7 +17,7 @@ class Socket(QObject):
         self.messages = []
         self.ws = None
         self.thread = None
-        for i in range(0, 7):
+        for _ in range(0, 7):
             self.messages.append([])
 
     def connect(self, server, port):

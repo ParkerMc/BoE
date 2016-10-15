@@ -39,7 +39,7 @@ class ServerList(QtGui.QDialog, serverList_class):
         self.connectButton.clicked.connect(self.connectToServer)
         self.cancelButton.clicked.connect(self.cancel)
         # Load servers from array
-        for i, j in self.servers.items():
+        for i, _ in self.servers.items():
             self.items[i] = QtGui.QTreeWidgetItem((i, "", ""))
             self.serversL.addTopLevelItems([self.items[i]])
 

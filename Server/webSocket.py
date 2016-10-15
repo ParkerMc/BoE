@@ -6,16 +6,16 @@ from passlib.hash import sha256_crypt
 import settings
 from webSocketServer import SSLWebSocketServer, WebSocket
 
-usersOn = []
-clients = []
-users = []
-
 global clients
 global users
 global users
 
+usersOn = []
+clients = []
+users = []
 
-class User:
+
+class User(object):
     def __init__(self):
         pass
 

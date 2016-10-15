@@ -477,6 +477,7 @@ class SimpleWebSocketServer(History):
         self.connections = {}
         self.listeners = [self.serversocket]
 
+    @staticmethod
     def _decorateSocket(self, sock):
         return sock
 
@@ -487,7 +488,7 @@ class SimpleWebSocketServer(History):
         self.mods.Sclose(self)
         self.serversocket.close()
 
-        for desc, conn in self.connections.items():
+        for _, conn in self.connections.items():
             conn.close()
             conn.handleClose()
 
