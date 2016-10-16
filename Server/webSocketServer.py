@@ -16,9 +16,9 @@ from BaseHTTPServer import BaseHTTPRequestHandler
 from StringIO import StringIO
 from collections import deque
 from select import select
-from history import History
 
 import modloader
+from history import History
 
 __all__ = ['WebSocket', 'SimpleWebSocketServer', 'SSLWebSocketServer']
 
@@ -246,7 +246,7 @@ class WebSocket(object):
         else:
             data = self.client.recv(8192)
             if not data:
-                raise Exception("remote socket closed")
+                print("remote socket closed")
 
             for d in data:
                 self._parseMessage(ord(d))
@@ -389,7 +389,7 @@ class WebSocket(object):
             if self.opcode == PING and length > 125:
                 raise Exception('ping packet is too large')
 
-            if mask is 128:
+            if mask == 128:
                 self.hasmask = True
             else:
                 self.hasmask = False

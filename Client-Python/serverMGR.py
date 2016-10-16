@@ -9,16 +9,28 @@ from PyQt4.QtCore import pyqtSignal, QObject
 
 class Socket(QObject):
     newMsg = pyqtSignal()
+    msgFound = pyqtSignal()
 
     def __init__(self):
         QObject.__init__(self)
+        self.found_msg = None
         self.server = ""
+        self.waiting_for = []
+        self.waited_for = ""
         self.port = 8000
         self.messages = []
         self.ws = None
         self.thread = None
         for _ in range(0, 7):
             self.messages.append([])
+        self.newMsg.connect(self._check_waiting_for)
+
+    def _check_waiting_for(self):
+        for i in self.waiting_for:
+            ids, messages = self.getMessages(*i)
+            if len(messages) > 0:
+                self.waited_for = ids, messages
+                self.msgFound.emit()
 
     def connect(self, server, port):
         websocket.enableTrace(True)
@@ -48,11 +60,9 @@ class Socket(QObject):
         self.messages[int(pid)].append(message)
         self.newMsg.emit()
 
-    def waitTillMessage(self, *pid):
-        ids, messages = self.getMessages(*pid)
-        while len(messages) == 0:
-            ids, messages = self.getMessages(*pid)
-        return ids, messages
+    def waitTillMessage(self, *pid):  # To be made better in next releace
+        self.waiting_for = []
+        self.waiting_for.append(pid)
 
     def getMessages(self, *pid):
         out = []
