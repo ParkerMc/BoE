@@ -8,6 +8,23 @@ A chat platform that intends to look at other chat programs and take only the "B
 
 <sup><sup><sup>Icon by angelgal246.</sup></sup></sup>
 
+#Install
+
+####Ubuntu####
+To install on Ubuntu you first need to add the ppa and import the key.
+```
+sudo add-apt-repository ppa:parkermc/boe
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 018486F9EEA44E0F
+sudo apt-get update
+```
+Then install it with:
+`sudo apt-get install boe`
+
+
+Install files on other systems coming **very soon**
+
+- - - -
+
 [Mods](https://github.com/ParkerMc/BoE-Mods)
 
 For the client on windows you need run setup-Windows.bat and install [PyQt4.](https://sourceforge.net/projects/pyqt/files/PyQt4/PyQt-4.11.4/)
