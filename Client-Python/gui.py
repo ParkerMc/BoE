@@ -21,8 +21,8 @@ class Main(QtGui.QMainWindow, main_class):
         self.setupUi(self)  # Setup Ui
         self.socket = Socket()
         self.servers = {}  # Array for servers
-        if path.isfile("servers.csv"):  # If server file exists
-            f = open("servers.csv", "r")  # Open file for reading
+        if path.isfile(path.join(path.expanduser("~"), "servers.csv")):  # If server file exists
+            f = open(path.join(path.expanduser("~"), "servers.csv"), "r")  # Open file for reading
             data = f.readlines()  # Read file
             f.close()  # Close file
             for i in data:  # Loop though line
