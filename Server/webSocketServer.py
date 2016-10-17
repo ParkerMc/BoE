@@ -112,10 +112,10 @@ class WebSocket(object):
     def _handlePacket(self):
         if self.opcode == PONG or self.opcode == PING:
             if len(self.data) > 125:
-                raise Exception('control frame length can not be > 125')
+                print 'control frame length can not be > 125'
         elif self.opcode not in [CLOSE, STREAM, TEXT, BINARY]:
             # unknown or reserved opcode so just close
-            raise Exception('unknown opcode')
+            print 'unknown opcode'
 
         if self.opcode == CLOSE:
             status = 1000
@@ -145,7 +145,7 @@ class WebSocket(object):
         elif self.fin == 0:
             if self.opcode != STREAM:
                 if self.opcode == PING or self.opcode == PONG:
-                    raise Exception('control messages can not be fragmented')
+                    print 'control messages can not be fragmented'
 
                 self.frag_type = self.opcode
                 self.frag_start = True
@@ -162,7 +162,7 @@ class WebSocket(object):
 
             else:
                 if not self.frag_start:
-                    raise Exception('fragmentation protocol error')
+                    print 'fragmentation protocol error'
 
                 if self.frag_type == TEXT:
                     utf_str = self.frag_decoder.decode(self.data, final=False)
@@ -174,7 +174,7 @@ class WebSocket(object):
         else:
             if self.opcode == STREAM:
                 if not self.frag_start:
-                    raise Exception('fragmentation protocol error')
+                    print 'fragmentation protocol error'
 
                 if self.frag_type == TEXT:
                     utf_str = self.frag_decoder.decode(self.data, final=True)
@@ -200,13 +200,13 @@ class WebSocket(object):
 
             else:
                 if self.frag_start:
-                    raise Exception('fragmentation protocol error')
+                    print 'fragmentation protocol error'
 
                 if self.opcode == TEXT:
                     try:
                         self.data = self.data.decode('utf8', errors='strict')
                     except Exception:
-                        raise Exception('invalid utf-8 payload')
+                        print 'invalid utf-8 payload'
                 self.pId = self.data[:4]
                 self.data = self.data[4:]
                 self.handleMessage()
@@ -217,14 +217,14 @@ class WebSocket(object):
 
             data = self.client.recv(self.headertoread)
             if not data:
-                raise Exception('remote socket closed')
+                print 'remote socket closed'
 
             else:
                 # accumulate
                 self.headerbuffer.extend(data)
 
                 if len(self.headerbuffer) >= self.maxheader:
-                    raise Exception('header exceeded allowable size')
+                    print 'header exceeded allowable size'
 
                 # indicates end of HTTP header
                 if b'\r\n\r\n' in self.headerbuffer:
@@ -240,7 +240,7 @@ class WebSocket(object):
                         self.handshaked = True
                         self.handleConnected()
                     except Exception as e:
-                        raise Exception('handshake failed: %s', str(e))
+                        print 'handshake failed: %s', str(e)
 
         # else do normal data
         else:
@@ -282,7 +282,7 @@ class WebSocket(object):
                 # i should be able to send a bytearray
                 sent = self.client.send(buff[already_sent:])
                 if sent == 0:
-                    raise RuntimeError('socket connection broken')
+                    print 'socket connection broken'
 
                 already_sent += sent
                 tosend -= sent
