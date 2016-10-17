@@ -151,7 +151,7 @@ class ServerList(QtGui.QDialog, serverList_class):
     def save(self):
         self.servers[self.addServer.data[0]] = (
             self.addServer.data[1], self.addServer.data[2], self.addServer.data[3])  # Add to array
-        f = open("~/servers.csv", "w")  # Open file for writing
+        f = open(path.join(path.expanduser("~"), "servers.csv"), "w")  # Open file for writing
         for i, j in self.servers.items():  # Loop though array
             f.write(str(i) + "," + str(j[0]) + "," + str(j[1]) + "," + str(j[2]) + "\n")  # Save to file
         f.close()  # Close file
