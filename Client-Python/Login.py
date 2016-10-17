@@ -1,6 +1,7 @@
 from PyQt4 import QtGui, uic
+from os import path
 
-login_class = uic.loadUiType("ui/login.ui")[0]
+login_class = uic.loadUiType(path.join(path.dirname(path.realpath(__file__)), "ui/login.ui"))[0]
 
 
 class Login(QtGui.QDialog, login_class):

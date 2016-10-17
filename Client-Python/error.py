@@ -6,8 +6,9 @@ import traceback
 import urllib
 
 from PyQt4 import QtGui, uic
+from os import path
 
-error_class = uic.loadUiType("ui/error.ui")[0]
+error_class = uic.loadUiType(path.join(path.dirname(path.realpath(__file__)), "ui/error.ui"))[0]
 
 
 def excepthook(exc_type, exc_value, tracebackobj):

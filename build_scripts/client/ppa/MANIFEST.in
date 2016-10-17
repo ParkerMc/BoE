@@ -1,0 +1,4 @@
+include boeClient/ui/*
+include boeClient/assets/*
+include boeClient/LICENSE
+include data/*
