@@ -3,8 +3,9 @@ from PyQt4 import QtGui, uic
 from AddServer import AddServer
 from CreateUser import CreateUser
 from Login import Login
+from os import path
 
-serverList_class = uic.loadUiType("ui/serverList.ui")[0]
+serverList_class = uic.loadUiType(path.join(path.dirname(path.realpath(__file__)), "ui/serverList.ui"))[0]
 
 
 class ServerList(QtGui.QDialog, serverList_class):
@@ -150,7 +151,7 @@ class ServerList(QtGui.QDialog, serverList_class):
     def save(self):
         self.servers[self.addServer.data[0]] = (
             self.addServer.data[1], self.addServer.data[2], self.addServer.data[3])  # Add to array
-        f = open("servers.csv", "w")  # Open file for writing
+        f = open("~/servers.csv", "w")  # Open file for writing
         for i, j in self.servers.items():  # Loop though array
             f.write(str(i) + "," + str(j[0]) + "," + str(j[1]) + "," + str(j[2]) + "\n")  # Save to file
         f.close()  # Close file
