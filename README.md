@@ -20,6 +20,13 @@ sudo apt-get update
 Then install it with:
 `sudo apt-get install boe`
 
+--
+
+####Arch####
+For arch based distros we have a [aur package.](https://aur.archlinux.org/packages/boe/)
+For installing we suggest useing [yourt.](https://archlinux.fr/yaourt-en)
+
+--
 
 Install files on other systems coming **very soon**
 
