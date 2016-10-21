@@ -1,13 +1,13 @@
-cd ../../../
+cd ../../
 mkdir ppa
 mkdir ppa/boeClient
 mkdir ppa/bin
 mkdir ppa/data
-cp build_scripts/client/ppa/setup.py ppa/
-cp build_scripts/client/ppa/MANIFEST.in ppa/
-cp build_scripts/client/ppa/stdeb.cfg ppa/
-cp build_scripts/client/ppa/boe ppa/bin/
-cp build_scripts/client/ppa/BoE.desktop ppa/data/
+cp build_scripts/ppa/setup.py ppa/
+cp build_scripts/ppa/MANIFEST.in ppa/
+cp build_scripts/ppa/stdeb.cfg ppa/
+cp build_scripts/ppa/boe ppa/bin/
+cp build_scripts/ppa/BoE.desktop ppa/data/
 cp -R Client-Python/* ppa/boeClient
 cp LICENSE ppa/boeClient
 cd ppa
