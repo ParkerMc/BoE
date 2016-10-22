@@ -12,7 +12,7 @@ from ServerList import ServerList
 from serverMGR import Socket
 from toHtml import toHtml
 
-main_class = uic.loadUiType(path.join(path.dirname(path.realpath(__file__))[:-10], "ui/main.ui"))[0]
+main_class = uic.loadUiType(path.join(path.dirname(path.realpath(__file__)), "ui/main.ui"))[0]
 
 
 class Main(QtGui.QMainWindow, main_class):
