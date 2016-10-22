@@ -5,7 +5,7 @@ from CreateUser import CreateUser
 from Login import Login
 from os import path
 
-serverList_class = uic.loadUiType(path.join(path.dirname(path.realpath(__file__)), "ui/serverList.ui"))[0]
+serverList_class = uic.loadUiType(path.join(path.dirname(path.realpath(__file__))[:-10], "ui/serverList.ui"))[0]
 
 
 class ServerList(QtGui.QDialog, serverList_class):

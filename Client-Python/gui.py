@@ -5,14 +5,14 @@ from os import path
 from threading import Thread
 
 from PyQt4 import QtGui, uic, QtCore, Qt
-from PyQt4.QtWebKit import QWebSettings
+#from PyQt4.QtWebKit import QWebSettings
 
 import error
 from ServerList import ServerList
 from serverMGR import Socket
 from toHtml import toHtml
 
-main_class = uic.loadUiType(path.join(path.dirname(path.realpath(__file__)), "ui/main.ui"))[0]
+main_class = uic.loadUiType(path.join(path.dirname(path.realpath(__file__))[:-10], "ui/main.ui"))[0]
 
 
 class Main(QtGui.QMainWindow, main_class):
@@ -53,7 +53,7 @@ class Main(QtGui.QMainWindow, main_class):
             'window.onscroll = function() {RunOnPython.loadMore()};'
             '</script>')
         self.chatBox.page().mainFrame().addToJavaScriptWindowObject('RunOnPython', self)
-        self.chatBox.page().settings().setAttribute(QWebSettings.DeveloperExtrasEnabled, True)
+        #self.chatBox.page().settings().setAttribute(QWebSettings.DeveloperExtrasEnabled, True)
 
     def appendWeb(self, object_web, text):
         pos = object_web.page().mainFrame().scrollPosition()
