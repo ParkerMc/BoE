@@ -1,0 +1,5 @@
+#!/usr/bin/python2
+import boeServer.webSocket
+
+if __name__ == "__main__":
+    boeServer.webSocket.start()
