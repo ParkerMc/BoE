@@ -1,7 +1,7 @@
 from PyQt4 import QtGui, uic
 from os import path 
 
-createUser_class = uic.loadUiType(path.join(path.dirname(path.realpath(__file__)), "ui/createuser.ui"))[0]
+createUser_class = uic.loadUiType(path.join(path.dirname(path.realpath(__file__))[:-10], "ui/createuser.ui"))[0]
 
 
 class CreateUser(QtGui.QDialog, createUser_class):

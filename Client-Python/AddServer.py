@@ -1,7 +1,7 @@
 from PyQt4 import QtGui, uic
 from os import path
 
-addServer_class = uic.loadUiType(path.join(path.dirname(path.realpath(__file__)), "ui/addServer.ui"))[0]
+addServer_class = uic.loadUiType(path.join(path.dirname(path.realpath(__file__))[:-10], "ui/addServer.ui"))[0]
 
 
 class AddServer(QtGui.QDialog, addServer_class):
