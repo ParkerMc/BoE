@@ -2,3 +2,6 @@ include boeClient/ui/*
 include boeClient/assets/*
 include boeClient/LICENSE
 include data/*
+include boeServer/LICENSE
+include boeServer/chat/Main/*
+include boeServer/mods/*
