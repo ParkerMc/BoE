@@ -4,7 +4,7 @@ import py2exe, sys, os
 sys.argv.append('py2exe')
 
 BoE_data_files = []
-for folder in ['ui', 'assets']:
+for folder in ['chat/Main']:
     for files in os.listdir(folder):
         f1 = os.path.join(folder , files)
         if os.path.isfile(f1): # skip directories
@@ -15,9 +15,9 @@ setup(
     options = {'py2exe': {'bundle_files': 1, 'compressed': True, 'dll_excludes': ['w9xpopen.exe', 'mpr.dll', 'crypt32.dll']}},
     windows = [
         {
-            "script": "client.py",
-            "icon_resources": [(1, "assets/BoE.ico")],
-            "dest_base" : "BoE"
+            "script": "server.py",
+            "icon_resources": [(1, "../Client-Python/assets/BoE.ico")],
+            "dest_base" : "BoE-sever"
         }
     ],
     zipfile = None,
