@@ -3,7 +3,7 @@ import sys
 
 def replaceAll(file):
     searchExp = "uic.loadUiType(path.join(path.dirname(path.realpath(__file__))"
-    replaceExp = "uic.loadUiType(path.join(path.dirname(path.realpath(__file__))[:-10]"
+    replaceExp = "uic.loadUiType(path.join(path.dirname(path.realpath(__file__))[:-7]"
     for line in fileinput.input(file, inplace=1):
         if searchExp in line:
             line = line.replace(searchExp,replaceExp)
