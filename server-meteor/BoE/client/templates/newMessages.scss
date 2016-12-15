@@ -1,0 +1,36 @@
+@import '../variables';
+@import '../mixins/input.mixin';
+
+input[type=text] {
+  width: 100%;
+  @include input;
+  margin: 0.2em 0;
+}
+
+.info {
+  float: right;
+}
+
+form:after {
+  display: block;
+  content: '';
+  clear: both;
+}
+
+button {
+  @include button;
+  padding: $newMessageVerticalPadding 1.9em;
+  font-size: 1.2em;
+  margin: 0;
+}
+.count {
+  font-weight: 300;
+  font-size: 1.35em;
+  color: $textMutedColor;
+  transition: $stylingTransition;
+
+  &.danger {
+    color: $textDangerColor;
+    font-weight: $counterDangerWeight;
+  }
+}
