@@ -2,9 +2,10 @@
 @import '../mixins/input.mixin';
 
 input[type=text] {
-  width: 100%;
+  width: calc(100% - 124px);
   @include input;
   margin: 0.2em 0;
+  margin-right: 0em;
 }
 
 .info {

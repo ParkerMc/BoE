@@ -7,8 +7,9 @@ body, * {
 }
 
 html, body { 
-    height:100%;
-    overflow: hidden;
+  height:100%;
+  padding-right: 11px;
+  padding-bottom: 16px;
 }
 
 .container {
@@ -21,7 +22,7 @@ html, body {
 .scrollable {
   float: right;
   margin: 0 auto;
-  height: 80%;
+  height: 75%;
   width: 80%;
   overflow: auto;
   position: absolute;
