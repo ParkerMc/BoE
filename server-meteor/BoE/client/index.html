@@ -4,8 +4,15 @@
 </head>
 
 <body>
+<script>
+    (function($){
+        $(window).on("load",function(){
+            $("#scrollbox").mCustomScrollbar({theme:"minimal-dark"});
+        });
+    })(jQuery);
+</script>
   <div class="container">
-<div class="scrollable">
+<div id="scrollbox" class="scrollable" >
   {{> messages}}
 </div>
   </div>
@@ -13,4 +20,3 @@
   {{> newMessage}}
 </div>
 </body>
-

@@ -16,13 +16,13 @@ html, body {
   float: right;
   margin: 0 auto;
   width: 80%;
-  height:80%;
+  height: calc(100% - 40px);
 }
 
 .scrollable {
   float: right;
   margin: 0 auto;
-  height: 75%;
+  height: calc(100% - 80px);
   width: 80%;
   overflow: auto;
   position: absolute;
