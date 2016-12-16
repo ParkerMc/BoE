@@ -58,7 +58,7 @@ html, body {
   background-color: #033c99;
 }
 
-.headder{
+.headder {
   width: calc(100% - 250px);
   top: 0px;
   height: 52px;
@@ -68,4 +68,24 @@ html, body {
   border-bottom-color: #D3D3D3;
   position: absolute;
 
+}
+
+
+@media only screen and (max-width: 480px) {
+  .container {
+    left: 10px;
+    top: 52px;
+    width: calc(100% - 10px);
+  }
+  .bottombar {
+    left: 0px;
+    width: 100%;
+  }
+  .sidebar {
+    display: none;
+  }
+  .headder {
+    width: calc(100% );
+    left: 0px;
+  }
 }
