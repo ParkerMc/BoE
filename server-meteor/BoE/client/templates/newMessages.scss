@@ -2,10 +2,14 @@
 @import '../mixins/input.mixin';
 
 input[type=text] {
-  width: calc(100% - 124px);
   @include input;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  border-right-width: 0;
+  height: 36px;
+  width: calc(100% - 134px);
   margin: 0.2em 0;
-  margin-right: 0em;
+  margin-right: 0px;
 }
 
 .info {
@@ -20,9 +24,19 @@ form:after {
 
 button {
   @include button;
-  padding: $newMessageVerticalPadding 1.9em;
+  color: #999;
+  background-color: #f2f2f2;
+  border-style: solid;
+  border-color: #D3D3D3;
+  height: 36px;
+  border-width: thin;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  padding: 0 1.9em;
   font-size: 1.2em;
   margin: 0;
+  padding-bottom: 1.5px;
+  margin-left: -5px;
 }
 .count {
   font-weight: 300;

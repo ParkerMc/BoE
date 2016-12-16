@@ -4,19 +4,21 @@
 </head>
 
 <body>
-<script>
-    (function($){
-        $(window).on("load",function(){
-            $("#scrollbox").mCustomScrollbar({theme:"minimal-dark"});
-        });
-    })(jQuery);
-</script>
+<div class="headder">
+  <p>&nbsp;&nbsp;&nbsp;&nbsp;#Test</p>
+</div>
+<div class="sidebar">
+
+</div>
+
   <div class="container">
-<div id="scrollbox" class="scrollable" >
+<div id="scrollbox" class="scrollable mCustomScrollbar" data-mcs-theme="dark-thick">
+<div>
   {{> messages}}
 </div>
+</div>
   </div>
-<div class="send">
+<div class="bottombar">
   {{> newMessage}}
 </div>
 </body>
