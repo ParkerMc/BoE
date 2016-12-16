@@ -1,5 +1,5 @@
 function messages() {
-  return Messages.find({}, { sort: { 'time': -1 } });
+  return Messages.find({}, { sort: { 'time': 1 } });
 }
 
 function time(time) {

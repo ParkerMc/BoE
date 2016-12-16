@@ -5,39 +5,29 @@ body, * {
   font-family: $fontFamily;
   box-sizing: border-box;
 }
-
-.container {
-  max-width: 1000px;
-  margin: 0 auto;
-  width: 80%;
+html, body { 
+    height:100%;
 }
 
-header {
-  width: 100%;
-  text-align: right;
-  padding: 0 .5em .7em;
-  border-bottom: solid 1px $headerBorderColor;
-  margin-bottom: 1em;
+.container {
+  float: right;
+  margin: 0 auto;
+  width: 80%;
+  height:80%;
+}
 
-  #login-buttons {
-    text-align: left;
-    font-family: $fontFamily;
+.scrollable {
+  float: right;
+  margin: 0 auto;
+  height: 80%;
+  width: 80%;
+  overflow: auto;
+  position: absolute;
+}
 
-    .login-link-text,
-    .login-close-text {
-      color: $textPrimaryColor;
-    }
-
-    .accounts-dialog input {
-      @include input;
-    }
-
-    .login-button {
-      @include button;
-    }
-
-    .additional-link-container {
-      color: $textPrimaryColor;
-    }
-  }
+.send {
+  float: right;
+  padding-top: 1px;
+  margin: 0 auto;
+  width: 80%;
 }
