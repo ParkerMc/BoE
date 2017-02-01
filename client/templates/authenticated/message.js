@@ -4,6 +4,12 @@ Template.message.helpers({
       let user = Meteor.users.findOne( userId, { fields: { 'profile.name': 1 } } );
       return user ? `${ user.profile.name }` : '';
     }
+  },
+  username( userId ) {
+    if ( userId ) {
+      let user = Meteor.users.findOne( userId, { fields: { 'username': 1 } } );
+      return user ? `${ user.username }` : '';
+    }
   }
 });
 
