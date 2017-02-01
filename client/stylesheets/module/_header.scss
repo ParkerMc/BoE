@@ -3,6 +3,12 @@
   background: #fff;
   width: calc(100% - 250px);
   left: 250px;
+
+  @media (max-width: 600px) {
+    left: 0px;
+    width: 100%;
+  }
+
   .navbar-brand > span {
     position: relative;
     top: -1px;
