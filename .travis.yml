@@ -1,33 +1,9 @@
-language: python
-sudo: required
-python:
-  - "2.7"
+language: node_js
+node_js:
+  - "0.12"
 before_install:
-  - cd ..
-  - curl -L -O http://sourceforge.net/projects/pyqt/files/sip/sip-4.14.1/sip-4.14.1.tar.gz
-  - tar -xvf sip-4.14.1.tar.gz
-  - cd sip-4.14.1
-  - python configure.py
-  - make -j 4 &> /dev/null
-  - sudo make install &> /dev/null
-  - cd ..
-  - curl -L -O http://sourceforge.net/projects/pyqt/files/PyQt4/PyQt-4.9.5/PyQt-x11-gpl-4.9.5.tar.gz
-  - tar -xvf PyQt-x11-gpl-4.9.5.tar.gz &> /dev/null
-  - cd PyQt-x11-gpl-4.9.5
-  - python configure.py --confirm-license &> /dev/null
-  - make -j 4 &> /dev/null
-  - sudo make install &> /dev/null
-  - cd ../BOE
-  - pip install coverage
-  - pip install codeclimate-test-reporter
-script:
-  - cd Client-Python
-  - python Test.py
-  - cd ../Server
-  - python Test.py
-  - cd ..
-after_success:
-  - COVERAGE_FILE=.coverage_1 coverage run Server/Test.py
-  - COVERAGE_FILE=.coverage_2 coverage run Client-Python/Test.py
-  - coverage combine
-  - codeclimate-test-reporter --file .coverage
+  - "curl -L https://raw.githubusercontent.com/arunoda/travis-ci-laika/master/configure.sh | /bin/sh"
+services:
+  - mongodb
+env:
+  - LAIKA_OPTIONS="-t 5000"
