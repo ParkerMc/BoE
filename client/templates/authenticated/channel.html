@@ -2,7 +2,7 @@
   {{> sidebar}}
 
   <div class="conversation">
-    <div id="messages">
+    <div id="messages" class="mCustomScrollbar">
       <div class="messages-list {{#if isLoading}}loading-list{{/if}}">
         {{#each messages}}
           {{> message}}
@@ -20,4 +20,7 @@
       <input name="message" placeholder="Type your message here...">
     </div>
   </div>
+<script>
+$(".mCustomScrollbar").mCustomScrollbar({theme:"minimal-dark"});
+</script>
 </template>
