@@ -126,7 +126,7 @@ body.is-channel .container {
     overflow: auto;
     height: calc( 100% - 122px );
     background: #fff;
-    padding: 20px 20px 0;
+    padding: 0px 20px 0;
   }
 
   .messages-list {
@@ -148,6 +148,11 @@ body.is-channel .container {
   .messages-list .message:last-child {
     margin-bottom: 20px;
   }
+
+  .message {
+    width:100%;
+	word-wrap: break-word;
+}
 
   .message header h4 {
     font-size: 14px;
