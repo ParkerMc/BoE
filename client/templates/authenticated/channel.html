@@ -2,7 +2,7 @@
   {{> sidebar}}
 
   <div class="conversation">
-    <div id="messages">
+    <div id="messages" class="mCustomScrollbar">
       <div class="messages-list {{#if isLoading}}loading-list{{/if}}">
         {{#each messages}}
           {{> message}}
@@ -20,4 +20,24 @@
       <input name="message" placeholder="Type your message here...">
     </div>
   </div>
+<script>
+var atBottom = false;
+$("#messages").mCustomScrollbar({theme:"minimal-dark",callbacks:{
+    onUpdate:function(){
+		if(atBottom){
+		  $("#messages").mCustomScrollbar("scrollTo", "bottom");
+		}
+    },
+	whileScrolling:function(){
+      if(this.mcs.topPct >= 98){
+	  	  atBottom = true;
+		}else{
+		  atBottom = false;	
+		}
+    },
+	onInit: function(){
+	  $("#messages").mCustomScrollbar("scrollTo", "bottom");
+	}
+}});
+</script>
 </template>
