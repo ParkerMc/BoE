@@ -21,6 +21,23 @@
     </div>
   </div>
 <script>
-$(".mCustomScrollbar").mCustomScrollbar({theme:"minimal-dark"});
+var atBottom = false;
+$("#messages").mCustomScrollbar({theme:"minimal-dark",callbacks:{
+    onUpdate:function(){
+		if(atBottom){
+		  $("#messages").mCustomScrollbar("scrollTo", "bottom");
+		}
+    },
+	whileScrolling:function(){
+      if(this.mcs.topPct >= 98){
+	  	  atBottom = true;
+		}else{
+		  atBottom = false;	
+		}
+    },
+	onInit: function(){
+	  $("#messages").mCustomScrollbar("scrollTo", "bottom");
+	}
+}});
 </script>
 </template>
