@@ -1,0 +1,16 @@
+{
+  "name": "application-name",
+  "version": "1.0.0",
+  "description": "Application description.",
+  "scripts": {
+    "start": "meteor --settings settings-development.json",
+    "staging": "meteor deploy staging.meteor.com --settings settings-development.json",
+    "production": "meteor deploy production.meteor.com --settings settings-production.json"
+  },
+  "devDependencies": {},
+  "dependencies": {
+    "babel-runtime": "^6.22.0",
+    "bcrypt": "^1.0.2",
+    "lodash": "^4.5.1"
+  }
+}
