@@ -21,6 +21,10 @@ body.is-channel .container {
   background: $blue;
   padding: 20px;
 
+  @media (max-width: 600px) {
+    width: 1px;
+    display: none;
+  }
   h5 {
     text-transform: uppercase;
     font-size: 12px;
@@ -87,6 +91,11 @@ body.is-channel .container {
   width: calc( 100% - 250px );
   background: #fff;
   border-top: 1px solid #eee;
+
+  @media (max-width: 600px) {
+    left: 0px;
+    width: 100%;
+  }
 
   .message-input {
     background: #fff;
