@@ -1,0 +1,3 @@
+[submodule "BoE-Web"]
+	path = BoE-Web
+	url = https://github.com/ParkerMc/BoE-Web.git
