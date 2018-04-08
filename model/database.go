@@ -6,9 +6,9 @@ type Database interface {
 	Disconnect()
 	UserAddRole(userID string, role string) *Error
 	UserCheckPassword(userID string, password string) (bool, *Error)
-	UserFromEmail(email string) (*User, *Error)
-	UserFromID(id string) (*User, *Error)
-	UserFromUsername(username string) (*User, *Error)
+	UserGetByEmail(email string) (*User, *Error)
+	UserGetByID(id string) (*User, *Error)
+	UserGetByUsername(username string) (*User, *Error)
 	UserGetUsers(page int, pageSize int, sortType SortType) ([]User, *Error)
 	UserLogin(userID string, password string, ip string) (*User, *UserToken, *Error)
 	UserPurgeExpiredTokens(userID string) *Error

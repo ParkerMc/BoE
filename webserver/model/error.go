@@ -27,16 +27,19 @@ func NewErrorFromError(detailErr *model.Error) *Error {
 	newError := &Error{
 		Message: detailErr.Message,
 	}
-	if detailErr.Type == model.ErrorBadInput {
+	switch detailErr.Type {
+	case model.ErrorBadInput:
 		newError.StatusCode = http.StatusBadRequest
-	} else if detailErr.Type == model.ErrorInternal {
+	case model.ErrorInternal:
 		newError.StatusCode = http.StatusInternalServerError
-	} else if detailErr.Type == model.ErrorNotFound {
+	case model.ErrorNotFound:
 		newError.StatusCode = http.StatusNotFound
-	} else if detailErr.Type == model.ErrorUnauthorized {
+	case model.ErrorUnauthorized:
 		newError.StatusCode = http.StatusUnauthorized
-	} else if detailErr.Type == model.ErrorForbidden {
+	case model.ErrorForbidden:
 		newError.StatusCode = http.StatusForbidden
+	case model.ErrorConflict:
+		newError.StatusCode = http.StatusConflict
 	}
 	return newError
 }

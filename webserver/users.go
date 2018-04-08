@@ -1,7 +1,6 @@
 package webserver
 
 import (
-	"encoding/json"
 	"net/http"
 	"strconv"
 	"strings"
@@ -25,307 +24,257 @@ func (webserver *WebServer) InitUsers() {
 }
 
 func (webserver *WebServer) userAddRole(w http.ResponseWriter, r *http.Request) {
-	user, webErr := webserver.requireLogin(r)
-	if webErr != nil {
+	_, admin, requestedUser, webErr := webserver.userGetUserSubType(r) // Require login and get user requested
+	if webErr != nil {                                                 // If there is an error send it
 		webErr.Send(w)
 		return
 	}
-	admin := false
-	for _, role := range user.Roles {
-		if role == "admin" {
-			admin = true
-		}
-	}
-	id := mux.Vars(r)["id"]
-	role := mux.Vars(r)["role"]
-	if id == "me" {
-		id = user.ID.Hex()
-	}
+	role := mux.Vars(r)["role"] // get the role
 
-	if !admin {
+	if !admin { // If the user is not an admin return no perm error
 		webservermodel.NewErrorMessage("No perm", http.StatusForbidden).Send(w)
 		return
 	}
-	detailErr := webserver.data.Database.UserAddRole(id, role)
-	if detailErr != nil {
+	detailErr := webserver.data.Database.UserAddRole(requestedUser.ID.Hex(), role) // Add the role to the user
+	if detailErr != nil {                                                          // If there is an error send it
 		webservermodel.NewErrorFromError(detailErr).Send(w)
 		return
 	}
-	w.WriteHeader(http.StatusNoContent)
+	w.WriteHeader(http.StatusNoContent) // Else if everything is successful return no content
 }
 
 func (webserver *WebServer) userGetUser(w http.ResponseWriter, r *http.Request) {
-	user, webErr := webserver.requireLogin(r)
-	if webErr != nil {
+	user, admin, requestedUser, webErr := webserver.userGetUserSubType(r) // Require login and get user requested
+	if webErr != nil {                                                    // If there is an error then send it
 		webErr.Send(w)
 		return
 	}
-	admin := false
-	for _, role := range user.Roles {
-		if role == "admin" {
-			admin = true
+	var response webservermodel.Responce      // Create responce
+	if admin || requestedUser.ID == user.ID { // If they are an admin or the user requested
+		response = webservermodel.UserPrivateResponse{ // create UserPrivate responce
+			User: webservermodel.UserPrivateFromUser(requestedUser),
 		}
-	}
-	id := mux.Vars(r)["id"]
-	if id == "me" {
-		id = user.ID.Hex()
-	}
-	foundUser, detailErr := webserver.data.Database.UserFromID(id)
-	if detailErr != nil {
-		webservermodel.NewErrorFromError(detailErr).Send(w)
-		return
-	}
-
-	var response webservermodel.Responce
-	if admin || id == user.ID.Hex() {
-		response = webservermodel.UserPrivateResponse{
-			User: webservermodel.UserPrivateFromUser(foundUser),
-		}
-	} else {
+	} else { // Else create a UserPublic responce
 		response = webservermodel.UserPublicResponse{
-			User: webservermodel.UserPublicFromUser(foundUser),
+			User: webservermodel.UserPublicFromUser(requestedUser),
 		}
 	}
-	response.Send(w, http.StatusOK)
+	response.Send(w, http.StatusOK) // Send the responce with status ok
 }
 
-func (webserver *WebServer) userGetUsers(w http.ResponseWriter, r *http.Request) {
-	user, webErr := webserver.requireLogin(r)
-	if webErr != nil {
-		webErr.Send(w)
-		return
-	}
-	admin := false
-	for _, role := range user.Roles {
-		if role == "admin" {
-			admin = true
-		}
-	}
-	page := 0
+func userGetUsersPhraseData(r *http.Request) (int, int, model.SortType, *webservermodel.Error) {
+	page := 0 // Set the defaults
 	pageSize := 50
 	sortType := model.SortUserName
 	var err error
-	r.ParseForm()
-	if _, ok := r.Form["page"]; ok {
-		if page, err = strconv.Atoi(strings.Join(r.Form["page"], "")); err != nil {
-			webservermodel.NewErrorMessage("page must be an int", http.StatusBadRequest).Send(w)
-			return
+	r.ParseForm()                    // Parse the forms
+	if _, ok := r.Form["page"]; ok { // If there is the page key
+		if page, err = strconv.Atoi(strings.Join(r.Form["page"], "")); err != nil { // Get an int from it or error
+			return 0, 0, model.SortNone, webservermodel.NewErrorMessage("page must be an int", http.StatusBadRequest)
 		}
 	}
-	if _, ok := r.Form["page_size"]; ok {
-		if pageSize, err = strconv.Atoi(strings.Join(r.Form["page_size"], "")); err != nil {
-			webservermodel.NewErrorMessage("page_size must be an int", http.StatusBadRequest).Send(w)
-			return
+	if _, ok := r.Form["page_size"]; ok { // If there is the page_size key
+		if pageSize, err = strconv.Atoi(strings.Join(r.Form["page_size"], "")); err != nil { // Get an int from it or error
+			return 0, 0, model.SortNone, webservermodel.NewErrorMessage("page_size must be an int", http.StatusBadRequest)
 		}
 	}
-	if _, ok := r.Form["sort"]; ok {
-		sortType = model.SortTypeFromString(strings.Join(r.Form["sort"], ""))
-		if sortType != model.SortID && sortType != model.SortName && sortType != model.SortUserName {
-			webservermodel.NewErrorMessage("sort is not a valid sorting type", http.StatusBadRequest).Send(w)
-			return
+	if _, ok := r.Form["sort"]; ok { // If there is the sort key
+		sortType = model.SortTypeFromString(strings.Join(r.Form["sort"], ""))                         // Get a sortType from it
+		if sortType != model.SortID && sortType != model.SortName && sortType != model.SortUserName { // If it is not an aproved sort type then return with error
+			return 0, 0, model.SortNone, webservermodel.NewErrorMessage("sort is not a valid sorting type", http.StatusBadRequest)
 		}
 	}
-	foundUsers, detailErr := webserver.data.Database.UserGetUsers(page, pageSize, sortType)
-	if detailErr != nil {
+	return page, pageSize, sortType, nil // Return with all data
+}
+
+func (webserver *WebServer) userGetUsers(w http.ResponseWriter, r *http.Request) {
+	_, admin, webErr := webserver.requireLogin(r) // Require login
+	if webErr != nil {                            // If there is an error send it
+		webErr.Send(w)
+		return
+	}
+	page, pageSize, sortType, webErr := userGetUsersPhraseData(r)                           // Get all the data
+	foundUsers, detailErr := webserver.data.Database.UserGetUsers(page, pageSize, sortType) // Get the user list
+	if detailErr != nil {                                                                   // if there is an error send it
 		webservermodel.NewErrorFromError(detailErr).Send(w)
 		return
 	}
 
-	if admin {
-		response := webservermodel.UsersPrivateResponse{
+	if admin { // If they are admin then give them the private responce
+		response := webservermodel.UsersPrivateResponse{ // Create the responce
 			Users: make([]webservermodel.UserPrivate, 0),
 		}
-		for _, foundUser := range foundUsers {
+		for _, foundUser := range foundUsers { // Add the users
 			response.Users = append(response.Users, webservermodel.UserPrivateFromUser(&foundUser))
 		}
-		response.Send(w, http.StatusOK)
+		response.Send(w, http.StatusOK) // Send the responce
 	} else {
-		response := webservermodel.UsersPublicResponse{
+		response := webservermodel.UsersPublicResponse{ // Create the response
 			Users: make([]webservermodel.UserPublic, 0),
 		}
-		for _, foundUser := range foundUsers {
+		for _, foundUser := range foundUsers { // Add the users
 			response.Users = append(response.Users, webservermodel.UserPublicFromUser(&foundUser))
 		}
-		response.Send(w, http.StatusOK)
+		response.Send(w, http.StatusOK) // Send the responce
 	}
+}
+
+func (webserver *WebServer) userGetUserSubType(r *http.Request) (*model.User, bool, *model.User, *webservermodel.Error) {
+	user, admin, webErr := webserver.requireLogin(r) // Require login
+	if webErr != nil {                               // If there is an error return it
+		return nil, false, nil, webErr
+	}
+	id := mux.Vars(r)["id"] // Get the Id
+	if id == "me" {         // If the id is me replace it with the user id
+		id = user.ID.Hex()
+	}
+	requestedUser, detailErr := webserver.data.Database.UserGetByID(id) // Get the user requested
+	if detailErr != nil {                                               // If there is an error return it
+		return nil, false, nil, webservermodel.NewErrorFromError(detailErr)
+
+	}
+	return user, admin, requestedUser, nil // Return all the values
 }
 
 func (webserver *WebServer) userLogin(w http.ResponseWriter, r *http.Request) {
-	userIn := webservermodel.UserLoginInput{}
-	err := json.NewDecoder(r.Body).Decode(&userIn)
-	if err != nil {
-		webservermodel.NewErrorWithMsg("Error decoding json: %s", err, http.StatusBadRequest).Send(w)
+	userIn, webErr := webservermodel.UserLoginInputFromJSON(r.Body) // Get the login object
+	if webErr != nil {                                              // If there an error send it
+		webErr.Send(w)
 		return
 	}
-
-	if userIn.UserIdentifier == "" {
-		webservermodel.NewErrorMessage("user_id must not be empty.", http.StatusBadRequest).Send(w)
-		return
-	}
-	if userIn.Password == "" {
-		webservermodel.NewErrorMessage("password must not be empty.", http.StatusBadRequest).Send(w)
-		return
-	}
-	ip := realip.FromRequest(r)
-	user, token, detailErr := webserver.data.Database.UserLogin(userIn.UserIdentifier, userIn.Password, ip)
-	if detailErr != nil {
+	ip := realip.FromRequest(r)                                                                             // TODO rewrite in own code later to prevent spoofing
+	user, token, detailErr := webserver.data.Database.UserLogin(userIn.UserIdentifier, userIn.Password, ip) // Login as user
+	if detailErr != nil {                                                                                   // If there is an error send it
 		webservermodel.NewErrorFromError(detailErr).Send(w)
 		return
 	}
-	response := webservermodel.UserLoginResponse{
+	response := webservermodel.UserLoginResponse{ // Create the responce
 		Token: token.Token,
 		User:  webservermodel.UserPrivateFromUser(user),
 	}
-	response.Send(w, http.StatusOK)
+	response.Send(w, http.StatusOK) // Send the responce
 }
 
 func (webserver *WebServer) userRegister(w http.ResponseWriter, r *http.Request) {
-	userIn := webservermodel.UserRegisterInput{}
-	err := json.NewDecoder(r.Body).Decode(&userIn)
-	if err != nil {
-		webservermodel.NewErrorWithMsg("Error decoding json: %s", err, http.StatusBadRequest).Send(w)
-		return
-	}
-	webErr := userIn.CheckData()
-	if webErr != nil {
+	userIn, webErr := webservermodel.UserRegisterInputFromJSON(r.Body) // Get the user object from json
+	if webErr != nil {                                                 // If there is an error send it
 		webErr.Send(w)
 		return
 	}
+	// Register the user
 	detailErr := webserver.data.Database.UserRegister(userIn.Username, userIn.Name, userIn.Password, userIn.Email)
-	if detailErr != nil {
+	if detailErr != nil { // If there is an error send it
 		webservermodel.NewErrorFromError(detailErr).Send(w)
 		return
 	}
 
-	ip := realip.FromRequest(r)
+	ip := realip.FromRequest(r) // Get the ip and login
 	user, token, detailErr := webserver.data.Database.UserLogin(userIn.Username, userIn.Password, ip)
-	if detailErr != nil {
+	if detailErr != nil { // If there is an error send it
 		webservermodel.NewErrorFromError(detailErr).Send(w)
 		return
 	}
-	response := webservermodel.UserLoginResponse{
+	response := webservermodel.UserLoginResponse{ // Fourm the responce
 		Token: token.Token,
 		User:  webservermodel.UserPrivateFromUser(user),
 	}
-	response.Send(w, http.StatusOK)
+	response.Send(w, http.StatusOK) // Send the responce
 }
 
 func (webserver *WebServer) userRemoveRole(w http.ResponseWriter, r *http.Request) {
-	user, webErr := webserver.requireLogin(r)
-	if webErr != nil {
+	_, admin, requestedUser, webErr := webserver.userGetUserSubType(r) // Require login and get user requested
+	if webErr != nil {                                                 // If there is an error send it
 		webErr.Send(w)
 		return
 	}
-	admin := false
-	for _, role := range user.Roles {
-		if role == "admin" {
-			admin = true
-		}
-	}
-	id := mux.Vars(r)["id"]
-	role := mux.Vars(r)["role"]
-	if id == "me" {
-		id = user.ID.Hex()
-	}
+	role := mux.Vars(r)["role"] // get the role
 
-	if !admin {
+	if !admin { // If the user is not an admin return no perm error
 		webservermodel.NewErrorMessage("No perm", http.StatusForbidden).Send(w)
 		return
 	}
-	detailErr := webserver.data.Database.UserRemoveRole(id, role)
-	if detailErr != nil {
+	detailErr := webserver.data.Database.UserRemoveRole(requestedUser.ID.Hex(), role) // Remove the role to the user
+	if detailErr != nil {                                                             // If there is an error send it
 		webservermodel.NewErrorFromError(detailErr).Send(w)
 		return
 	}
-	w.WriteHeader(http.StatusNoContent)
+	w.WriteHeader(http.StatusNoContent) // Else if everything is successful return no content
 }
 
 func (webserver *WebServer) userSetPassword(w http.ResponseWriter, r *http.Request) {
-	user, webErr := webserver.requireLogin(r)
-	if webErr != nil {
+	user, admin, requestedUser, webErr := webserver.userGetUserSubType(r) // Require login and get user requested
+	if webErr != nil {                                                    // If there is an error then send it
 		webErr.Send(w)
 		return
 	}
-	admin := false
-	for _, role := range user.Roles {
-		if role == "admin" {
-			admin = true
-		}
-	}
-	changePasswordIn := webservermodel.UserChangePasswordInput{}
-	err := json.NewDecoder(r.Body).Decode(&changePasswordIn)
-	if err != nil {
-		webservermodel.NewErrorWithMsg("Error decoding json: %s", err, http.StatusBadRequest).Send(w)
+	changePasswordIn, webErr := webservermodel.UserChangePasswordInputFromJSON(r.Body) // Get the password change object
+	if webErr != nil {                                                                 // If there is an error then send it
+		webErr.Send(w)
 		return
 	}
-	id := mux.Vars(r)["id"]
-	if id == "me" {
-		id = user.ID.Hex()
-	}
-	if user.ID.Hex() != id {
-		if !admin {
+	if user.ID != requestedUser.ID { // If the user is not changeing their own password
+		if !admin { // And they are not admin then send the error
 			webservermodel.NewErrorMessage("No perm", http.StatusForbidden).Send(w)
 			return
 		}
-		detailErr := webserver.data.Database.UserSetPassword(id, changePasswordIn.NewPassword)
-		if detailErr != nil {
-			webservermodel.NewErrorFromError(detailErr).Send(w)
-			return
-		}
-		w.WriteHeader(http.StatusNoContent)
-	} else {
-		if changePasswordIn.CurrentPassword == "" {
+	} else { // Else the user is changing their own passowrd
+		if changePasswordIn.CurrentPassword == "" { // If there is no current password send error
 			webservermodel.NewErrorMessage("current_password must not be blank", http.StatusBadRequest).Send(w)
 			return
 		}
-		correct, detailErr := webserver.data.Database.UserCheckPassword(id, changePasswordIn.CurrentPassword)
-		if detailErr != nil {
+		// Check if the passowrord is correct
+		correct, detailErr := webserver.data.Database.UserCheckPassword(requestedUser.ID.Hex(), changePasswordIn.CurrentPassword)
+		if detailErr != nil { // If there is an error send it
 			webservermodel.NewErrorFromError(detailErr).Send(w)
 			return
 		}
-		if correct {
-			detailErr = model.UserCheckPassword(changePasswordIn.NewPassword)
-			if detailErr != nil {
+		if correct { // If the passoword is correct
+			detailErr = model.UserCheckPassword(changePasswordIn.NewPassword) // Make sure that the new password matchs the requirements
+			if detailErr != nil {                                             // If not send error
 				webservermodel.NewErrorFromError(detailErr).Send(w)
 				return
 			}
-			detailErr = webserver.data.Database.UserSetPassword(id, changePasswordIn.NewPassword)
-			if detailErr != nil {
-				webservermodel.NewErrorFromError(detailErr).Send(w)
-				return
-			}
-			w.WriteHeader(http.StatusNoContent)
-		} else {
+		} else { // Else the password is incorrect send error
 			webservermodel.NewErrorMessage("Password incorrect", http.StatusUnauthorized).Send(w)
 			return
 		}
 	}
+	// Set the password
+	detailErr := webserver.data.Database.UserSetPassword(requestedUser.ID.Hex(), changePasswordIn.NewPassword)
+	if detailErr != nil { // If there is an error send it
+		webservermodel.NewErrorFromError(detailErr).Send(w)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent) // If there has been no error return with no content status code
 }
 
-func (webserver *WebServer) requireLogin(r *http.Request) (*model.User, *webservermodel.Error) {
+func (webserver *WebServer) requireLogin(r *http.Request) (*model.User, bool, *webservermodel.Error) {
 	token := r.Header.Get("X-User-Token")
 	id := r.Header.Get("X-User-Id")
-	if token == "" {
-		return nil, webservermodel.NewErrorMessage("X-User-Token not defined.", http.StatusBadRequest)
-
+	if token == "" { // If the token is blank send error
+		return nil, false, webservermodel.NewErrorMessage("X-User-Token not defined.", http.StatusBadRequest)
 	}
-	if id == "" {
-		return nil, webservermodel.NewErrorMessage("X-User-Id not defined.", http.StatusBadRequest)
+	if id == "" { // If the id is blank send error
+		return nil, false, webservermodel.NewErrorMessage("X-User-Id not defined.", http.StatusBadRequest)
 	}
-	user, detailErr := webserver.data.Database.UserFromID(id)
-	if detailErr != nil {
-		return nil, webservermodel.NewErrorFromError(detailErr)
-
+	user, detailErr := webserver.data.Database.UserGetByID(id) // Get the user by id
+	if detailErr != nil {                                      // If there is an error return it and exit
+		return nil, false, webservermodel.NewErrorFromError(detailErr)
 	}
-	for _, userToken := range user.Tokens {
-		if userToken.Token == token {
-			if userToken.Expiration.Before(time.Now()) {
-				webserver.data.Database.UserPurgeExpiredTokens(user.ID.Hex())
-			} else {
-				return user, nil
+	for _, userToken := range user.Tokens { // Loop through their tokens
+		if userToken.Token == token { // If it is the right token
+			if userToken.Expiration.Before(time.Now()) { // If token is expired
+				webserver.data.Database.UserPurgeExpiredTokens(user.ID.Hex()) // Purge all expired tokens
+			} else { // Else token is not expired
+				for _, role := range user.Roles { // Loop through roles
+					if role == "admin" { // if it is the admin role return
+						return user, true, nil
+					}
+				}
+				return user, false, nil // Else user it not admin
 			}
 			break
 		}
 	}
-	return nil, webservermodel.NewErrorMessage("Token not valid.", http.StatusUnauthorized)
+	return nil, false, webservermodel.NewErrorMessage("Token not valid.", http.StatusUnauthorized) // If it gets this far the token has not been found
 }

@@ -2,6 +2,7 @@ package webservermodel
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 
 	"github.com/ParkerMc/BoE/model"
@@ -75,6 +76,37 @@ type UsersPublicResponse struct {
 	Users []UserPublic `json:"users"`
 }
 
+// UserChangePasswordInputFromJSON Gets UserChangePasswordInput object from json
+func UserChangePasswordInputFromJSON(body io.ReadCloser) (*UserChangePasswordInput, *Error) {
+	changePasswordIn := &UserChangePasswordInput{} // Get the password change object from the body
+	err := json.NewDecoder(body).Decode(changePasswordIn)
+	if err != nil { // If there and an erorr sned it
+		return nil, NewErrorWithMsg("Error decoding json: %s", err, http.StatusBadRequest)
+	}
+	if changePasswordIn.NewPassword == "" { // If there is no new password send error
+		return nil, NewErrorMessage("new_password must not be blank", http.StatusBadRequest)
+	}
+	return changePasswordIn, nil
+}
+
+// UserLoginInputFromJSON Gets UserRegisterInput object from json and checks the data
+func UserLoginInputFromJSON(body io.ReadCloser) (*UserLoginInput, *Error) {
+	user := &UserLoginInput{}
+	err := json.NewDecoder(body).Decode(user) // Decode the body
+	if err != nil {                           // If there is an error return it
+		return nil, NewErrorWithMsg("Error decoding json: %s", err, http.StatusBadRequest)
+	}
+	if user.UserIdentifier == "" {
+		return nil, NewErrorMessage("user_id must not be empty.", http.StatusBadRequest)
+
+	}
+	if user.Password == "" {
+		return nil, NewErrorMessage("password must not be empty.", http.StatusBadRequest)
+
+	}
+	return user, nil
+}
+
 // ToJSON converts the struct to JSON
 func (user UserLoginResponse) ToJSON() string {
 	json, _ := json.Marshal(user)
@@ -136,21 +168,26 @@ func UserPublicFromUser(user *model.User) UserPublic {
 	}
 }
 
-// CheckData checks all the data to make sure it is all valid and has correct length
-func (user *UserRegisterInput) CheckData() *Error {
-	if err := model.UserCheckName(user.Name); err != nil {
-		return NewErrorFromError(err)
+// UserRegisterInputFromJSON Gets UserRegisterInput object from json and checks the data
+func UserRegisterInputFromJSON(body io.ReadCloser) (*UserRegisterInput, *Error) {
+	user := &UserRegisterInput{}
+	err := json.NewDecoder(body).Decode(user) // Decode the body
+	if err != nil {                           // If there is an error return it
+		return nil, NewErrorWithMsg("Error decoding json: %s", err, http.StatusBadRequest)
 	}
-	if err := model.UserCheckEmail(user.Email); err != nil {
-		return NewErrorFromError(err)
+	if err := model.UserCheckName(user.Name); err != nil { // Check the name if there is an error return it
+		return nil, NewErrorFromError(err)
 	}
-	if err := model.UserCheckPassword(user.Password); err != nil {
-		return NewErrorFromError(err)
+	if err := model.UserCheckEmail(user.Email); err != nil { // Check the email if there is an error return it
+		return nil, NewErrorFromError(err)
 	}
-	if err := model.UserCheckUsername(user.Username); err != nil {
-		return NewErrorFromError(err)
+	if err := model.UserCheckPassword(user.Password); err != nil { // Check the password if there is an error return it
+		return nil, NewErrorFromError(err)
 	}
-	return nil
+	if err := model.UserCheckUsername(user.Username); err != nil { // Check the username if there is an error return it
+		return nil, NewErrorFromError(err)
+	}
+	return user, nil
 }
 
 // ToJSON converts the struct to JSON

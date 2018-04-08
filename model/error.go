@@ -10,6 +10,7 @@ const (
 	ErrorNotFound     ErrorType = 2
 	ErrorUnauthorized ErrorType = 3
 	ErrorForbidden    ErrorType = 4
+	ErrorConflict     ErrorType = 5
 )
 
 // Error a detailed version of error so as to provide the right responce code
