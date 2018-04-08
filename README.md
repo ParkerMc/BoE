@@ -1,7 +1,6 @@
 # BoE /bō/
 
 [![Build Status](https://travis-ci.org/ParkerMc/BoE.svg?branch=master)](https://travis-ci.org/ParkerMc/BoE)
-[![codebeat badge](https://codebeat.co/badges/26b33f7d-8ba7-4552-aab2-b7310489f9d5)](https://codebeat.co/projects/github-com-parkermc-boe)
 [![GPL Licence](https://badges.frapsoft.com/os/gpl/gpl.svg?v=103)](https://opensource.org/licenses/GPL-3.0/)
 
 A chat platform that intends to look at other chat programs and take only the "Best of Everything".
@@ -21,12 +20,12 @@ Any commit must pass the following:
 * [gofmt](https://golang.org/cmd/gofmt)
 * [~~go test~~](https://golang.org/cmd/go/#hdr-Test_packages)- Not implemented yet
 #### Setup:
-After you clone the repository you need to clone the submodules with.
+After you clone the repository you need to clone the submodules with:
 ```bash
 git submodule init
 git submodule update
 ```
-Then run `make setup` to get all the dependencies with `go get`.
+Then run `make setup`, which will automatically run `go get` for you to grab all of the dependencies.
 
 #### Building:
 To build to everything run `make build`.
@@ -35,6 +34,6 @@ To build to everything run `make build`.
 To run the server in the development environment run `make run`.
 
 #### Docker Database:
-The make file includes a docker mongo database if you already have a database hosted on your computer you can use that instead.  
+The make file includes a docker mongo database. If you already have a database hosted on your computer, you can use that instead.
 To start the database run `start-database`.  
 To stop it run `stop-database`.
