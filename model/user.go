@@ -25,7 +25,7 @@ type User struct {
 	Emails        []UserEmail   `bson:"emails"`
 	Password      string        `bson:"password"`
 	CreatedTs     time.Time     `bson:"created_ts"`
-	GlobalRoles   []string      `bson:"global_roles"`
+	Roles         []string      `bson:"roles"`
 	Tokens        []UserToken   `bson:"tokens"`
 	LoginAttempts int           `bson:"login_attempts"`
 }

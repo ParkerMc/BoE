@@ -35,13 +35,13 @@ build: ## Build BoE
 build: setup
 	@echo Building BoE
 
-	cd boe-web && $(MAKE) build
+	cd BoE-Web && $(MAKE) build
 	rm -rf build
 	mkdir -p build/client/
 	mkdir -p build/bin/
 	go build -o build/bin/boe main.go
 
-	cp -r boe-web/build/* build/client/
+	cp -r BoE-Web/build/* build/client/
 
 setup: ## Setup the project
 	@echo Setting up the project
@@ -52,7 +52,7 @@ clean: ## Clean up the build files and web app
 clean: stop-database
 	@echo Cleaning
 
-	cd boe-web && $(MAKE) clean
+	cd BoE-Web && $(MAKE) clean
 	rm -rf build
 	rm -rf run
 

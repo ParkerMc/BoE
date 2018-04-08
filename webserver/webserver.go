@@ -31,7 +31,7 @@ func Init(data *data.Data) *WebServer {
 
 	webserver.Routes.Root = mux.NewRouter()
 	webserver.Routes.API = webserver.Routes.Root.PathPrefix("/api/v" + apiVersion).Subrouter()
-	webserver.Routes.User = webserver.Routes.API.PathPrefix("/user").Subrouter()
+	webserver.Routes.User = webserver.Routes.API.PathPrefix("/users").Subrouter()
 
 	webserver.InitClient()
 	webserver.InitUsers()

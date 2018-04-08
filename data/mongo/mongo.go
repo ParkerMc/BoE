@@ -15,12 +15,15 @@ type Mongo struct {
 	session  *mgo.Session
 	database *mgo.Database
 
-	settings model.Settings
+	settings  model.Settings
+	userCache []model.User
 }
 
 // Init Inits for the mongo database
 func Init() *Mongo {
 	mongo := Mongo{}
+
+	mongo.userInit()
 
 	return &mongo
 }

@@ -4,7 +4,15 @@ package model
 type Database interface {
 	Connect(config *Config, flags *Flags)
 	Disconnect()
+	UserAddRole(userID string, role string) *Error
+	UserCheckPassword(userID string, password string) (bool, *Error)
+	UserFromEmail(email string) (*User, *Error)
+	UserFromID(id string) (*User, *Error)
+	UserFromUsername(username string) (*User, *Error)
+	UserGetUsers(page int, pageSize int, sortType SortType) ([]User, *Error)
 	UserLogin(userID string, password string, ip string) (*User, *UserToken, *Error)
-	UserPurgeExpiredTokens(id string) error
+	UserPurgeExpiredTokens(userID string) *Error
 	UserRegister(username string, name string, password string, email string) *Error
+	UserRemoveRole(userID string, role string) *Error
+	UserSetPassword(userID string, password string) *Error
 }
